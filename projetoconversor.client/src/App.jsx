@@ -1,51 +1,86 @@
-﻿import { useEffect, useState } from 'react';
-import './App.css';
+﻿import { useState } from 'react'
 
 function App() {
-    const [forecasts, setForecasts] = useState();
+    const [name, setName] = useState('')
+    const [accountType, setAccountType] = useState('')
+    const [password, setPassword] = useState('')
 
-    useEffect(() => {
-        populateWeatherData();
-    }, []);
+    async function createUser(event) {
+        event.preventDefault()
 
-    const contents = forecasts === undefined
-        ? <p><em>Loading... Please refresh once the ASP.NET backend has started. See <a href="https://aka.ms/jspsintegrationreact">https://aka.ms/jspsintegrationreact</a> for more details.</em></p>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
+        const user = {
+            name: name,
+            accountType: accountType,
+            password: password
+        }
 
-    return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
-    );
-    
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(user)
+        })
+
         if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
+            alert('Usuário criado com sucesso')
+
+            setName('')
+            setAccountType('')
+            setPassword('')
+        } else {
+            alert('Erro ao criar usuário')
         }
     }
+
+    return (
+        <main>
+            <h1>Projeto Conversor</h1>
+
+            <h2>Cadastrar usuário</h2>
+
+            <form onSubmit={createUser}>
+                <div>
+                    <label>Nome</label>
+                    <br />
+
+                    <input
+                        type="text"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                    />
+                </div>
+
+                <div>
+                    <label>Tipo da conta</label>
+                    <br />
+
+                    <input
+                        type="text"
+                        value={accountType}
+                        onChange={(event) => setAccountType(event.target.value)}
+                    />
+                </div>
+
+                <div>
+                    <label>Senha</label>
+                    <br />
+
+                    <input
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                    />
+                </div>
+
+                <br />
+
+                <button type="submit">
+                    Cadastrar
+                </button>
+            </form>
+        </main>
+    )
 }
 
-export default App;
+export default App
