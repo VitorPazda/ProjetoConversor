@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
 
-namespace ProjetoConversor.Controllers
+namespace ProjetoConversor.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

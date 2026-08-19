@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProjetoConversor.Models
 {
-    public class ConversionApp
+    public class ConversionModel
     {
         [Key]
         public int IdConversion { get; set; }

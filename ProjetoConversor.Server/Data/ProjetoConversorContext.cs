@@ -13,6 +13,6 @@ namespace ProjetoConversor.Data
 
         // Entities
         public DbSet<User> User { get; set; }
-        public DbSet<ConversionApp> Conversion { get; set; }
+        public DbSet<ConversionModel> Conversion { get; set; }
     }
 }
