@@ -7,20 +7,10 @@ namespace ProjetoConversor.Models
     {
         [Key]
         public int IdConversion { get; set; }
-        public int UserId { get; set; }
-        public string Bank { get; set; }
-        public string FileName { get; set; }
+        public int UserId { get; set; } = 0;
+        public string Bank { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
         public DateTime Date { get; set; }
-        public string Status { get; set; }
-
-        public ConversionModel(int idConversion, int userId, string bank, string fileName, DateTime date, string status)
-        {
-            IdConversion = idConversion;
-            UserId = userId;
-            Bank = bank;
-            FileName = fileName;
-            Date = date;
-            Status = status;
-        }
+        public string Status { get; set; } = string.Empty;
     }
 }

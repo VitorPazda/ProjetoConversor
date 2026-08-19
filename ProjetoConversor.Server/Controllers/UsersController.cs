@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
+using BCrypt.Net;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -42,6 +43,7 @@ namespace ProjetoConversor.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> InsertUser(User user)
         {
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             _context.User.Add(user);
             await _context.SaveChangesAsync();
             return StatusCode(201);
