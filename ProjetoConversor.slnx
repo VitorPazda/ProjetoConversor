@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="projetoconversor.client/projetoconversor.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="ProjetoConversor.Server/ProjetoConversor.Server.csproj" />
+</Solution>

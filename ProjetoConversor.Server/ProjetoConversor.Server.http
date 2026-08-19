@@ -1,0 +1,6 @@
+@ProjetoConversor.Server_HostAddress = http://localhost:5130
+
+GET {{ProjetoConversor.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
