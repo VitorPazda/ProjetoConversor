@@ -57,7 +57,11 @@ namespace ProjetoConversor.Server.Controllers
 
             var text = converter.ExtractText(stream);
 
-            return Ok(text);
+            var parser = new SicoobParser();
+
+            var transactions = parser.Parse(text);
+
+            return Ok(transactions);
         }
     }
 }
