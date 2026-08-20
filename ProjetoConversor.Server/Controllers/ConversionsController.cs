@@ -59,9 +59,15 @@ namespace ProjetoConversor.Server.Controllers
 
             var parser = new SicoobParser();
 
+            // Transform text into transactions
             var transactions = parser.Parse(text);
 
-            return Ok(transactions);
+            var ofxGenerator = new OfxGenerator();
+
+            // Transform transactions into OFX
+            var ofx = ofxGenerator.Generate(transactions);
+
+            return Ok(ofx);
         }
     }
 }
