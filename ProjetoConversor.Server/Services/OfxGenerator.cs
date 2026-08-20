@@ -32,21 +32,15 @@ namespace ProjetoConversor.Server.Services
             ofx.AppendLine("<SEVERITY>INFO</SEVERITY>");
             ofx.AppendLine("</STATUS>");
 
-            ofx.AppendLine(
-                $"<DTSERVER>{FormatDate(statement.EndDate)}</DTSERVER>"
-            );
+            ofx.AppendLine($"<DTSERVER>{FormatDate(statement.EndDate)}</DTSERVER>");
 
             ofx.AppendLine("<LANGUAGE>POR</LANGUAGE>");
 
             ofx.AppendLine("<FI>");
 
-            ofx.AppendLine(
-                $"<ORG>{statement.BankName}</ORG>"
-            );
+            ofx.AppendLine($"<ORG>{statement.BankName}</ORG>");
 
-            ofx.AppendLine(
-                $"<FID>{statement.BankId}</FID>"
-            );
+            ofx.AppendLine($"<FID>{statement.BankId}</FID>");
 
             ofx.AppendLine("</FI>");
 
@@ -70,95 +64,55 @@ namespace ProjetoConversor.Server.Services
             // Account
             ofx.AppendLine("<BANKACCTFROM>");
 
-            ofx.AppendLine(
-                $"<BANKID>{statement.BankId}</BANKID>"
-            );
+            ofx.AppendLine($"<BANKID>{statement.BankId}</BANKID>");
 
-            ofx.AppendLine(
-                $"<BRANCHID>{statement.BranchId}</BRANCHID>"
-            );
+            ofx.AppendLine($"<BRANCHID>{statement.BranchId}</BRANCHID>");
 
-            ofx.AppendLine(
-                $"<ACCTID>{statement.AccountId}</ACCTID>"
-            );
+            ofx.AppendLine($"<ACCTID>{statement.AccountId}</ACCTID>");
 
-            ofx.AppendLine(
-                "<ACCTTYPE>CHECKING</ACCTTYPE>"
-            );
+            ofx.AppendLine("<ACCTTYPE>CHECKING</ACCTTYPE>");
 
             ofx.AppendLine("</BANKACCTFROM>");
 
             // Transactions
             ofx.AppendLine("<BANKTRANLIST>");
 
-            ofx.AppendLine(
-                $"<DTSTART>{FormatDate(statement.StartDate)}</DTSTART>"
-            );
+            ofx.AppendLine( $"<DTSTART>{FormatDate(statement.StartDate)}</DTSTART>");
 
-            ofx.AppendLine(
-                $"<DTEND>{FormatDate(statement.EndDate)}</DTEND>"
-            );
+            ofx.AppendLine($"<DTEND>{FormatDate(statement.EndDate)}</DTEND>");
 
-            var transactionNumberByDate =
-                new Dictionary<string, int>();
+            var transactionNumberByDate = new Dictionary<string, int>();
 
-            foreach (
-                var transaction
-                in statement.Transactions
-            )
+            foreach(var transaction in statement.Transactions)
             {
-                var dateKey =
-                    transaction.Date
-                        .ToString("yyyyMMdd");
+                var dateKey =transaction.Date.ToString("yyyyMMdd");
 
-                if (
-                    !transactionNumberByDate
-                        .ContainsKey(dateKey)
-                )
+                if (!transactionNumberByDate.ContainsKey(dateKey))
                 {
                     transactionNumberByDate[dateKey] = 0;
                 }
 
                 transactionNumberByDate[dateKey]++;
 
-                var sequence =
-                    transactionNumberByDate[dateKey];
+                var sequence = transactionNumberByDate[dateKey];
 
-                var fitId =
-                    $"{dateKey}{sequence:D2}";
+                var fitId = $"{dateKey}{sequence:D2}";
 
                 transaction.FitId = fitId;
 
                 ofx.AppendLine("<STMTTRN>");
 
-                ofx.AppendLine(
-                    $"<TRNTYPE>{transaction.Type}</TRNTYPE>"
-                );
+                ofx.AppendLine($"<TRNTYPE>{transaction.Type}</TRNTYPE>");
 
-                ofx.AppendLine(
-                    $"<DTPOSTED>{FormatDate(transaction.Date)}</DTPOSTED>"
-                );
+                ofx.AppendLine($"<DTPOSTED>{FormatDate(transaction.Date)}</DTPOSTED>");
 
-                ofx.AppendLine(
-                    $"<TRNAMT>{transaction.Amount.ToString(
-                        "0.00",
-                        CultureInfo.InvariantCulture
-                    )}</TRNAMT>"
-                );
+                ofx.AppendLine($"<TRNAMT>{transaction.Amount.ToString("0.00",CultureInfo.InvariantCulture)}</TRNAMT>");
 
-                ofx.AppendLine(
-                    $"<FITID>{fitId}</FITID>"
-                );
+                ofx.AppendLine($"<FITID>{fitId}</FITID>");
 
-                ofx.AppendLine(
-                    $"<CHECKNUM>{fitId}</CHECKNUM>"
-                );
+                ofx.AppendLine($"<CHECKNUM>{fitId}</CHECKNUM>");
 
-                ofx.AppendLine(
-                    $"<MEMO>{Escape(
-                        transaction.Memo
-                    )}</MEMO>"
-                );
+                ofx.AppendLine($"<MEMO>{Escape(transaction.Memo)}</MEMO>");
 
                 ofx.AppendLine("</STMTTRN>");
             }
@@ -168,16 +122,9 @@ namespace ProjetoConversor.Server.Services
             // Balancae
             ofx.AppendLine("<LEDGERBAL>");
 
-            ofx.AppendLine(
-                $"<BALAMT>{statement.Balance.ToString(
-                    "0.00",
-                    CultureInfo.InvariantCulture
-                )}</BALAMT>"
-            );
+            ofx.AppendLine($"<BALAMT>{statement.Balance.ToString("0.00",CultureInfo.InvariantCulture)}</BALAMT>");
 
-            ofx.AppendLine(
-                $"<DTASOF>{statement.EndDate:yyyyMMdd}</DTASOF>"
-            );
+            ofx.AppendLine($"<DTASOF>{statement.EndDate:yyyyMMdd}</DTASOF>");
 
             ofx.AppendLine("</LEDGERBAL>");
 
