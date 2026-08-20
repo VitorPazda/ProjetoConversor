@@ -28,6 +28,17 @@ namespace ProjetoConversor.Server.Services
                 var amountText = match.Groups["amount"].Value;
                 var operation = match.Groups["operation"].Value;
 
+                // Ignore header / ignore balances that are not real
+                if (content.Contains("EXTRATO CONTA CORRENTE",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    content.Contains("SALDO ANTERIOR",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    content.Contains("SALDO BLOQUEADO ANTERIOR",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
                 var date = DateTime.ParseExact(
                     dateText,
                     "dd/MM/yyyy",
@@ -44,13 +55,13 @@ namespace ProjetoConversor.Server.Services
                     amount *= -1;
                 }
 
-                // Separa número/documento do histórico
                 var checkNumber = "";
                 var memo = content;
 
+                // Accept simple document or with period
                 var documentMatch = Regex.Match(
                     content,
-                    @"^(?<doc>\d{3,})(?<memo>.+)$"
+                    @"^(?<doc>\d+(?:\.\d+)?)(?<memo>.+)$"
                 );
 
                 if (documentMatch.Success)
@@ -59,9 +70,10 @@ namespace ProjetoConversor.Server.Services
                     memo = documentMatch.Groups["memo"].Value.Trim();
                 }
 
-                // Pequena limpeza do texto
                 memo = memo
                     .Replace("PixPIX", "PIX")
+                    .Replace("PixESTORNO", "ESTORNO")
+                    .Replace("PixCRÉDITO", "CRÉDITO")
                     .Replace("MASTERCARDDÉB", "MASTERCARD DÉB")
                     .Trim();
 
