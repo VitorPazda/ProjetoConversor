@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjetoConversor.Models;
 using ProjetoConversor.Data;
+using ProjetoConversor.Models;
+using ProjetoConversor.Server.Services;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -39,6 +40,24 @@ namespace ProjetoConversor.Server.Controllers
             await _context.SaveChangesAsync();
 
             return StatusCode(StatusCodes.Status201Created);
+        }
+
+        // Test of Conversion of pdf to ofx
+        [HttpPost("test-pdf")]
+        public IActionResult TestPdf([FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest("Arquivo não enviado.");
+            }
+
+            using var stream = file.OpenReadStream();
+
+            var converter = new SicoobConverter();
+
+            var text = converter.ExtractText(stream);
+
+            return Ok(text);
         }
     }
 }
