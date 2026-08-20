@@ -1,4 +1,5 @@
 ﻿using ProjetoConversor.Models;
+using BCrypt.Net;
 
 namespace ProjetoConversor.Data
 {
@@ -20,7 +21,7 @@ namespace ProjetoConversor.Data
             }
 
             // If not, populate the db
-            User user01 = new User(1, "Vitor", "Administrator", "1234");
+            User user01 = new User(1, "Vitor", "Administrator", BCrypt.Net.BCrypt.HashPassword("1234"));
 
             // Add to db
             _context.User.AddRange(user01);
