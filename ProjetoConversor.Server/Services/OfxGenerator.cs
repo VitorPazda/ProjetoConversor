@@ -6,83 +6,185 @@ namespace ProjetoConversor.Server.Services
 {
     public class OfxGenerator
     {
-        public string Generate(List<BankTransaction> transactions)
+        public string Generate(BankStatement statement)
         {
             var ofx = new StringBuilder();
 
-            // Cabeçalho
             ofx.AppendLine("OFXHEADER:100");
             ofx.AppendLine("DATA:OFXSGML");
             ofx.AppendLine("VERSION:102");
             ofx.AppendLine("SECURITY:NONE");
-            ofx.AppendLine("ENCODING:UTF-8");
-            ofx.AppendLine("CHARSET:UTF-8");
+            ofx.AppendLine("ENCODING:USASCII");
+            ofx.AppendLine("CHARSET:1252");
             ofx.AppendLine("COMPRESSION:NONE");
             ofx.AppendLine("OLDFILEUID:NONE");
             ofx.AppendLine("NEWFILEUID:NONE");
             ofx.AppendLine();
 
-            // Estrutura principal
             ofx.AppendLine("<OFX>");
+
+            // Signon
+            ofx.AppendLine("<SIGNONMSGSRSV1>");
+            ofx.AppendLine("<SONRS>");
+
+            ofx.AppendLine("<STATUS>");
+            ofx.AppendLine("<CODE>0</CODE>");
+            ofx.AppendLine("<SEVERITY>INFO</SEVERITY>");
+            ofx.AppendLine("</STATUS>");
+
+            ofx.AppendLine(
+                $"<DTSERVER>{FormatDate(statement.EndDate)}</DTSERVER>"
+            );
+
+            ofx.AppendLine("<LANGUAGE>POR</LANGUAGE>");
+
+            ofx.AppendLine("<FI>");
+
+            ofx.AppendLine(
+                $"<ORG>{statement.BankName}</ORG>"
+            );
+
+            ofx.AppendLine(
+                $"<FID>{statement.BankId}</FID>"
+            );
+
+            ofx.AppendLine("</FI>");
+
+            ofx.AppendLine("</SONRS>");
+            ofx.AppendLine("</SIGNONMSGSRSV1>");
+
+            // Bank
             ofx.AppendLine("<BANKMSGSRSV1>");
             ofx.AppendLine("<STMTTRNRS>");
-            ofx.AppendLine("<TRNUID>1");
+
+            ofx.AppendLine("<TRNUID>1</TRNUID>");
+
             ofx.AppendLine("<STATUS>");
-            ofx.AppendLine("<CODE>0");
-            ofx.AppendLine("<SEVERITY>INFO");
+            ofx.AppendLine("<CODE>0</CODE>");
+            ofx.AppendLine("<SEVERITY>INFO</SEVERITY>");
             ofx.AppendLine("</STATUS>");
 
             ofx.AppendLine("<STMTRS>");
-            ofx.AppendLine("<CURDEF>BRL");
+            ofx.AppendLine("<CURDEF>BRL</CURDEF>");
 
-            // Dados do banco
+            // Account
             ofx.AppendLine("<BANKACCTFROM>");
-            ofx.AppendLine("<BANKID>756");
-            ofx.AppendLine("<BRANCHID>3031-7");
-            ofx.AppendLine("<ACCTID>130.449-6");
-            ofx.AppendLine("<ACCTTYPE>CHECKING");
+
+            ofx.AppendLine(
+                $"<BANKID>{statement.BankId}</BANKID>"
+            );
+
+            ofx.AppendLine(
+                $"<BRANCHID>{statement.BranchId}</BRANCHID>"
+            );
+
+            ofx.AppendLine(
+                $"<ACCTID>{statement.AccountId}</ACCTID>"
+            );
+
+            ofx.AppendLine(
+                "<ACCTTYPE>CHECKING</ACCTTYPE>"
+            );
+
             ofx.AppendLine("</BANKACCTFROM>");
 
-            // Período
-            if (transactions.Count > 0)
+            // Transactions
+            ofx.AppendLine("<BANKTRANLIST>");
+
+            ofx.AppendLine(
+                $"<DTSTART>{FormatDate(statement.StartDate)}</DTSTART>"
+            );
+
+            ofx.AppendLine(
+                $"<DTEND>{FormatDate(statement.EndDate)}</DTEND>"
+            );
+
+            var transactionNumberByDate =
+                new Dictionary<string, int>();
+
+            foreach (
+                var transaction
+                in statement.Transactions
+            )
             {
-                var firstDate = transactions.Min(t => t.Date);
-                var lastDate = transactions.Max(t => t.Date);
+                var dateKey =
+                    transaction.Date
+                        .ToString("yyyyMMdd");
 
-                ofx.AppendLine("<BANKTRANLIST>");
-                ofx.AppendLine($"<DTSTART>{FormatDate(firstDate)}");
-                ofx.AppendLine($"<DTEND>{FormatDate(lastDate)}");
-
-                foreach (var transaction in transactions)
+                if (
+                    !transactionNumberByDate
+                        .ContainsKey(dateKey)
+                )
                 {
-                    transaction.FitId = GenerateFitId(transaction);
-
-                    ofx.AppendLine("<STMTTRN>");
-                    ofx.AppendLine($"<TRNTYPE>{transaction.Type}");
-                    ofx.AppendLine($"<DTPOSTED>{FormatDate(transaction.Date)}");
-                    ofx.AppendLine(
-                        $"<TRNAMT>{transaction.Amount.ToString("0.00", CultureInfo.InvariantCulture)}"
-                    );
-
-                    ofx.AppendLine($"<FITID>{transaction.FitId}");
-
-                    if (!string.IsNullOrWhiteSpace(transaction.CheckNumber))
-                    {
-                        ofx.AppendLine(
-                            $"<CHECKNUM>{transaction.CheckNumber}"
-                        );
-                    }
-
-                    ofx.AppendLine($"<MEMO>{transaction.Memo}");
-                    ofx.AppendLine("</STMTTRN>");
+                    transactionNumberByDate[dateKey] = 0;
                 }
 
-                ofx.AppendLine("</BANKTRANLIST>");
+                transactionNumberByDate[dateKey]++;
+
+                var sequence =
+                    transactionNumberByDate[dateKey];
+
+                var fitId =
+                    $"{dateKey}{sequence:D2}";
+
+                transaction.FitId = fitId;
+
+                ofx.AppendLine("<STMTTRN>");
+
+                ofx.AppendLine(
+                    $"<TRNTYPE>{transaction.Type}</TRNTYPE>"
+                );
+
+                ofx.AppendLine(
+                    $"<DTPOSTED>{FormatDate(transaction.Date)}</DTPOSTED>"
+                );
+
+                ofx.AppendLine(
+                    $"<TRNAMT>{transaction.Amount.ToString(
+                        "0.00",
+                        CultureInfo.InvariantCulture
+                    )}</TRNAMT>"
+                );
+
+                ofx.AppendLine(
+                    $"<FITID>{fitId}</FITID>"
+                );
+
+                ofx.AppendLine(
+                    $"<CHECKNUM>{fitId}</CHECKNUM>"
+                );
+
+                ofx.AppendLine(
+                    $"<MEMO>{Escape(
+                        transaction.Memo
+                    )}</MEMO>"
+                );
+
+                ofx.AppendLine("</STMTTRN>");
             }
+
+            ofx.AppendLine("</BANKTRANLIST>");
+
+            // Balancae
+            ofx.AppendLine("<LEDGERBAL>");
+
+            ofx.AppendLine(
+                $"<BALAMT>{statement.Balance.ToString(
+                    "0.00",
+                    CultureInfo.InvariantCulture
+                )}</BALAMT>"
+            );
+
+            ofx.AppendLine(
+                $"<DTASOF>{statement.EndDate:yyyyMMdd}</DTASOF>"
+            );
+
+            ofx.AppendLine("</LEDGERBAL>");
 
             ofx.AppendLine("</STMTRS>");
             ofx.AppendLine("</STMTTRNRS>");
             ofx.AppendLine("</BANKMSGSRSV1>");
+
             ofx.AppendLine("</OFX>");
 
             return ofx.ToString();
@@ -90,22 +192,15 @@ namespace ProjetoConversor.Server.Services
 
         private string FormatDate(DateTime date)
         {
-            return date.ToString("yyyyMMddHHmmss") + "[-3:BRT]";
+            return date.ToString("yyyyMMdd235959");
         }
 
-        private string GenerateFitId(BankTransaction transaction)
+        private string Escape(string text)
         {
-            var value =
-                $"{transaction.Date:yyyyMMdd}" +
-                $"{transaction.Amount}" +
-                $"{transaction.CheckNumber}" +
-                $"{transaction.Memo}";
-
-            return Convert.ToHexString(
-                System.Security.Cryptography.SHA256.HashData(
-                    Encoding.UTF8.GetBytes(value)
-                )
-            )[..24];
+            return text
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;");
         }
     }
 }
