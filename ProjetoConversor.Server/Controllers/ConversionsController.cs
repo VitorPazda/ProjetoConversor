@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Data;
 using ProjetoConversor.Models;
 using ProjetoConversor.Server.Services;
+using System.Text;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -42,32 +43,49 @@ namespace ProjetoConversor.Server.Controllers
             return StatusCode(StatusCodes.Status201Created);
         }
 
-        // Test of Conversion of pdf to ofx
-        [HttpPost("test-pdf")]
-        public IActionResult TestPdf([FromForm] IFormFile file)
+        [HttpPost("convert")]
+        public async Task<IActionResult> ConvertPdf([FromForm] int userId, [FromForm] string bank, [FromForm] IFormFile? file)
         {
             if (file == null || file.Length == 0)
             {
                 return BadRequest("Arquivo não enviado.");
             }
 
+            // Extract pdf
             using var stream = file.OpenReadStream();
 
             var converter = new SicoobConverter();
-
             var text = converter.ExtractText(stream);
 
+            // Read the pdf
             var parser = new SicoobParser();
+            var statement = parser.Parse(text);
 
-            // Transform text into transactions
-            var transactions = parser.Parse(text);
-
+            // Generate OFX
             var ofxGenerator = new OfxGenerator();
+            var ofx = ofxGenerator.Generate(statement);
 
-            // Transform transactions into OFX
-            var ofx = ofxGenerator.Generate(transactions);
+            // Register conversion into db
+            var conversion = new ConversionModel
+            {
+                UserId = userId,
+                Bank = bank,
+                FileName = file.FileName,
+                Date = DateTime.Now,
+                Status = "Success"
+            };
 
-            return Ok(ofx);
+            _context.Conversion.Add(conversion);
+            await _context.SaveChangesAsync();
+
+            // Generate file name
+            var fileName = Path.GetFileNameWithoutExtension(file.FileName) + ".ofx";
+
+            // Generate string OFX into bytes
+            var bytes = Encoding.GetEncoding(1252).GetBytes(ofx);
+
+            // Return the file
+            return File(bytes, "application/x-ofx", fileName);
         }
     }
 }
