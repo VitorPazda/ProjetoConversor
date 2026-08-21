@@ -15,35 +15,23 @@ namespace ProjetoConversor.Server.Services
             };
 
             // Agency
-
-            var branchMatch = Regex.Match(
-                text,
-                @"Cooperativa:\s*(?<branch>[\d\-]+)",
-                RegexOptions.IgnoreCase
-            );
+            var branchMatch = Regex.Match(text, @"Cooperativa:\s*(?<branch>[\d\-]+)", RegexOptions.IgnoreCase);
 
             if (branchMatch.Success)
             {
-                statement.BranchId =
-                    branchMatch.Groups["branch"].Value;
+                statement.BranchId = branchMatch.Groups["branch"].Value;
             }
 
             // Account
-            var accountMatch = Regex.Match(
-                text,
-                @"Conta:\s*(?<account>[\d\.\-]+)",
-                RegexOptions.IgnoreCase
-            );
+            var accountMatch = Regex.Match(text,@"Conta:\s*(?<account>[\d\.\-]+)",RegexOptions.IgnoreCase);
 
             if (accountMatch.Success)
             {
-                statement.AccountId =
-                    accountMatch.Groups["account"].Value;
+                statement.AccountId = accountMatch.Groups["account"].Value;
             }
 
             // Period
-            var periodMatch = Regex.Match(
-                text,
+            var periodMatch = Regex.Match(text,
                 @"Per[ií]odo:\s*" +
                 @"(?<start>\d{2}/\d{2}/\d{4})" +
                 @"\s*-\s*" +
@@ -53,19 +41,9 @@ namespace ProjetoConversor.Server.Services
 
             if (periodMatch.Success)
             {
-                statement.StartDate =
-                    DateTime.ParseExact(
-                        periodMatch.Groups["start"].Value,
-                        "dd/MM/yyyy",
-                        CultureInfo.InvariantCulture
-                    );
+                statement.StartDate =DateTime.ParseExact(periodMatch.Groups["start"].Value,"dd/MM/yyyy",CultureInfo.InvariantCulture);
 
-                statement.EndDate =
-                    DateTime.ParseExact(
-                        periodMatch.Groups["end"].Value,
-                        "dd/MM/yyyy",
-                        CultureInfo.InvariantCulture
-                    );
+                statement.EndDate = DateTime.ParseExact(periodMatch.Groups["end"].Value,"dd/MM/yyyy",CultureInfo.InvariantCulture);
             }
 
             // Transactions
@@ -75,57 +53,28 @@ namespace ProjetoConversor.Server.Services
                 @"(?<amount>\d{1,3}(?:\.\d{3})*,\d{2})" +
                 @"(?<operation>[CD])";
 
-            var matches = Regex.Matches(
-                text,
-                pattern,
-                RegexOptions.Singleline
-            );
+            var matches = Regex.Matches(text,pattern,RegexOptions.Singleline);
 
             foreach (Match match in matches)
             {
-                var dateText =
-                    match.Groups["date"].Value;
+                var dateText = match.Groups["date"].Value;
 
-                var content =
-                    match.Groups["content"].Value.Trim();
+                var content = match.Groups["content"].Value.Trim();
 
-                var amountText =
-                    match.Groups["amount"].Value;
+                var amountText = match.Groups["amount"].Value;
 
-                var operation =
-                    match.Groups["operation"].Value;
+                var operation =match.Groups["operation"].Value;
 
                 // Ignore header and balances
-                if (
-                    content.Contains(
-                        "EXTRATO CONTA CORRENTE",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                    ||
-                    content.Contains(
-                        "SALDO ANTERIOR",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                    ||
-                    content.Contains(
-                        "SALDO BLOQUEADO ANTERIOR",
-                        StringComparison.OrdinalIgnoreCase
-                    )
-                )
+                if (content.Contains("EXTRATO CONTA CORRENTE", StringComparison.OrdinalIgnoreCase) || content.Contains("SALDO ANTERIOR",
+                    StringComparison.OrdinalIgnoreCase) || content.Contains("SALDO BLOQUEADO ANTERIOR",StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var date = DateTime.ParseExact(
-                    dateText,
-                    "dd/MM/yyyy",
-                    CultureInfo.InvariantCulture
-                );
+                var date = DateTime.ParseExact(dateText,"dd/MM/yyyy",CultureInfo.InvariantCulture);
 
-                var amount = decimal.Parse(
-                    amountText,
-                    new CultureInfo("pt-BR")
-                );
+                var amount = decimal.Parse(amountText,new CultureInfo("pt-BR"));
 
                 if (operation == "D")
                 {
@@ -136,20 +85,13 @@ namespace ProjetoConversor.Server.Services
                 var memo = content;
 
                 // Simple document or with period
-                var documentMatch = Regex.Match(
-                    content,
-                    @"^(?<doc>\d+(?:\.\d+)?)(?<memo>.+)$"
-                );
+                var documentMatch = Regex.Match(content,@"^(?<doc>\d+(?:\.\d+)?)(?<memo>.+)$");
 
                 if (documentMatch.Success)
                 {
-                    checkNumber =
-                        documentMatch.Groups["doc"].Value;
+                    checkNumber = documentMatch.Groups["doc"].Value;
 
-                    memo =
-                        documentMatch.Groups["memo"]
-                            .Value
-                            .Trim();
+                    memo = documentMatch.Groups["memo"].Value.Trim();
                 }
 
                 // Cleaning up
@@ -163,8 +105,7 @@ namespace ProjetoConversor.Server.Services
                     )
                     .Trim();
 
-                var transaction =
-                    new BankTransaction
+                var transaction = new BankTransaction
                     {
                         Date = date,
                         Amount = amount,
