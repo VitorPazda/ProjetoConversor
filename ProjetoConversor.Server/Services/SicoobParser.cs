@@ -99,10 +99,7 @@ namespace ProjetoConversor.Server.Services
                     .Replace("PixPIX", "PIX")
                     .Replace("PixESTORNO", "ESTORNO")
                     .Replace("PixCRÉDITO", "CRÉDITO")
-                    .Replace(
-                        "MASTERCARDDÉB",
-                        "MASTERCARD DÉB"
-                    )
+                    .Replace("MASTERCARDDÉB","MASTERCARD DÉB")
                     .Trim();
 
                 var transaction = new BankTransaction
@@ -110,9 +107,7 @@ namespace ProjetoConversor.Server.Services
                         Date = date,
                         Amount = amount,
 
-                        Type = operation == "C"
-                            ? "CREDIT"
-                            : "DEBIT",
+                        Type = operation == "C" ? "CREDIT": "DEBIT",
 
                         CheckNumber = checkNumber,
                         Memo = memo
