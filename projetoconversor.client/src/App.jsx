@@ -59,7 +59,11 @@ function App() {
         })
 
         if (!response.ok) {
+            const error = await response.text()
+
+            console.error(error)
             alert('Erro ao converter arquivo')
+
             return
         }
 
@@ -70,13 +74,27 @@ function App() {
         const link = document.createElement('a')
 
         link.href = url
-        link.download = file.name.replace(/\.pdf$/i, '') + '.ofx'
+
+        const contentDisposition = response.headers.get('Content-Disposition')
+
+        let fileName = 'arquivo.ofx'
+
+        if (contentDisposition) {
+            const match = contentDisposition.match(/filename=([^;]+)/)
+
+            if (match) {
+                fileName = match[1].replace(/"/g, '')
+            }
+        }
+
+        link.download = fileName
 
         document.body.appendChild(link)
 
         link.click()
 
         link.remove()
+
         window.URL.revokeObjectURL(url)
 
         alert('Arquivo convertido com sucesso')

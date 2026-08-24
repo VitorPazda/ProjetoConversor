@@ -79,7 +79,7 @@ namespace ProjetoConversor.Server.Controllers
             await _context.SaveChangesAsync();
 
             // Generate file name
-            var fileName = Path.GetFileNameWithoutExtension(file.FileName) + ".ofx";
+            var fileName = DateTime.Now.ToString("dd-MM-yyyy") + ".ofx";
 
             // Generate string OFX into bytes
             var bytes = Encoding.GetEncoding(1252).GetBytes(ofx);
