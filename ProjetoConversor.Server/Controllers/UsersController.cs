@@ -90,8 +90,9 @@ namespace ProjetoConversor.Server.Controllers
         public async Task<IActionResult> Login(LoginDto request)
         {
             var user = await _context.User.FirstOrDefaultAsync(u => u.Name == request.Name);
+            var validPassword = BCrypt.Net.BCrypt.Verify(request.Password, user.Password);
 
-            if (user == null || user.Password != request.Password)
+            if (user == null || !validPassword)
             {
                 return Unauthorized("Usuário ou senha inválidos");
             }
