@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -82,6 +83,20 @@ namespace ProjetoConversor.Server.Controllers
             _context.User.Remove(existingUser);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        // POST User Login
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto request)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(u => u.Name == request.Name);
+
+            if (user == null || user.Password != request.Password)
+            {
+                return Unauthorized("Usuário ou senha inválidos");
+            }
+
+            return Ok(user);
         }
     }
 }
