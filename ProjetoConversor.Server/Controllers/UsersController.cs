@@ -94,7 +94,7 @@ namespace ProjetoConversor.Server.Controllers
             // Verify that the user is not null first
             if (user == null)
             {
-                return Unauthorized("Usuário ou senha inválidos");
+                return Unauthorized(new { message= "Usuário ou senha inválidos" });
             }
             
             // And then after it, verify the password
@@ -102,10 +102,10 @@ namespace ProjetoConversor.Server.Controllers
 
             if (!validPassword)
             {
-                return Unauthorized("Usuário ou senha inválidos");
+                return Unauthorized(new { message = "Usuário ou senha inválidos" });
             }
 
-            return Ok();
+            return Ok(new {idUser = user.IdUser, name = user.Name, accountType = user.AccountType});
         }
     }
 }
