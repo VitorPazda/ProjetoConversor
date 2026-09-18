@@ -64,15 +64,14 @@ namespace ProjetoConversor.Server.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var existingUser = await _context.User.FindAsync(id);
+            var user = await _userService.FindByIdAsync(id);
 
-            if (existingUser == null)
+            if (user == null)
             {
-                return NotFound();
+                return NotFound(new { message = "User not found" });
             }
 
-            _context.User.Remove(existingUser);
-            await _context.SaveChangesAsync();
+            await _userService.DeleteAsync(id);
             return NoContent();
         }
 

@@ -6,6 +6,7 @@ using ProjetoConversor.Data;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity.Data;
 using ProjetoConversor.Server.Models;
+using System.Data;
 
 namespace ProjetoConversor.Server.Services
 {
@@ -73,9 +74,9 @@ namespace ProjetoConversor.Server.Services
                 _context.User.Remove(user);
                 await _context.SaveChangesAsync();
             }
-            catch
+            catch (DBConcurrencyException ex)
             {
-                throw new Exception("Bizarre error");
+                throw new Exception("Bizarre error", ex);
             }
         }
     }
