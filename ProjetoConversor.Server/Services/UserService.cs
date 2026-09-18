@@ -58,5 +58,25 @@ namespace ProjetoConversor.Server.Services
             await _context.SaveChangesAsync();
             return existingUser;
         }
+
+        public async Task DeleteAsync(int id)
+        {
+            try
+            {
+                var user = await FindByIdAsync(id);
+
+                if (user == null)
+                {
+                    throw new KeyNotFoundException("User not found");
+                }
+
+                _context.User.Remove(user);
+                await _context.SaveChangesAsync();
+            }
+            catch
+            {
+                throw new Exception("Bizarre error");
+            }
+        }
     }
 }
