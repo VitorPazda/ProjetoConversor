@@ -24,7 +24,7 @@ namespace ProjetoConversor.Server.Services
             return await _context.User.ToListAsync();
         }
 
-        public async Task<User> FindByIdAsync(int id)
+        public async Task<User?> FindByIdAsync(int id)
         {
             return await _context.User.FirstOrDefaultAsync(u => u.IdUser == id);
         }
@@ -37,7 +37,7 @@ namespace ProjetoConversor.Server.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<User> UpdateAsync(int id, User user)
+        public async Task<User?> UpdateAsync(int id, User user)
         {
             var existingUser = await _context.User.FindAsync(id);
 
