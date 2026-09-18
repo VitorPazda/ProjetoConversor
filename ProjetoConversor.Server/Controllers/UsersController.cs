@@ -24,7 +24,7 @@ namespace ProjetoConversor.Server.Controllers
 
         // GET All Users from db
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetUsers()
         {
             var user = await _userService.FindAllAsync();
             return Ok(user);
@@ -32,16 +32,10 @@ namespace ProjetoConversor.Server.Controllers
 
         // GET User by Id
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUserById(int id)
         {
-            var user = await _context.User.FindAsync(id);
-
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return user;
+            var user = await _userService.FindByIdAsync(id);
+            return Ok(user);
         }
 
         // POST User

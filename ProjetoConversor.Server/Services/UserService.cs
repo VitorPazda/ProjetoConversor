@@ -21,5 +21,10 @@ namespace ProjetoConversor.Server.Services
         {
             return await _context.User.ToListAsync();
         }
+
+        public async Task<User> FindByIdAsync(int id)
+        {
+            return await _context.User.FirstOrDefaultAsync(u => u.IdUser == id);
+        }
     }
 }
