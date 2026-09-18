@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoConversor.Data;
 
@@ -11,9 +12,11 @@ using ProjetoConversor.Data;
 namespace ProjetoConversor.Migrations
 {
     [DbContext(typeof(ProjetoConversorContext))]
-    partial class ProjetoConversorContextModelSnapshot : ModelSnapshot
+    [Migration("20260918121218_UsuarioAtualizado")]
+    partial class UsuarioAtualizado
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

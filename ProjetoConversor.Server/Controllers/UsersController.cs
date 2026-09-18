@@ -5,6 +5,7 @@ using ProjetoConversor.Models;
 using ProjetoConversor.Data;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity.Data;
+using ProjetoConversor.Server.Services;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -13,17 +14,20 @@ namespace ProjetoConversor.Server.Controllers
     public class UsersController : ControllerBase
     {
         private readonly ProjetoConversorContext _context;
+        private readonly UserService _userService;
 
-        public UsersController(ProjetoConversorContext context)
+        public UsersController(ProjetoConversorContext context, UserService userService)
         {
             _context = context;
+            _userService = userService;
         }
 
         // GET All Users from db
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<IActionResult> Get()
         {
-            return await _context.User.ToListAsync();
+            var user = await _userService.FindAllAsync();
+            return Ok(user);
         }
 
         // GET User by Id
@@ -45,6 +49,7 @@ namespace ProjetoConversor.Server.Controllers
         public async Task<IActionResult> InsertUser(User user)
         {
             user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            user.Active = true;
             _context.User.Add(user);
             await _context.SaveChangesAsync();
             return StatusCode(201);
@@ -64,6 +69,7 @@ namespace ProjetoConversor.Server.Controllers
             existingUser.Name = user.Name;
             existingUser.AccountType = user.AccountType;
             existingUser.Password = user.Password;
+            existingUser.Active = user.Active;
 
             await _context.SaveChangesAsync();
             return existingUser;
@@ -94,7 +100,7 @@ namespace ProjetoConversor.Server.Controllers
             // Verify that the user is not null first
             if (user == null)
             {
-                return Unauthorized(new { message= "Usuário ou senha inválidos" });
+                return Unauthorized(new { message = "Usuário ou senha inválidos" });
             }
             
             // And then after it, verify the password

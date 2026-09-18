@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Data;
+using ProjetoConversor.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,10 @@ builder.Services.AddDbContext<ProjetoConversorContext>(options =>
 );
 
 // Add Seeding Service
-builder.Services.AddScoped <SeedingService>();
+builder.Services.AddScoped<SeedingService>();
+
+// Add UserService
+builder.Services.AddScoped<UserService>();
 
 // Add services to the container.
 
