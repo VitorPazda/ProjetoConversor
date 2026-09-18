@@ -42,10 +42,7 @@ namespace ProjetoConversor.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> InsertUser(User user)
         {
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            user.Active = true;
-            _context.User.Add(user);
-            await _context.SaveChangesAsync();
+            await _userService.InsertAsync(user);
             return StatusCode(201);
         }
 

@@ -26,5 +26,13 @@ namespace ProjetoConversor.Server.Services
         {
             return await _context.User.FirstOrDefaultAsync(u => u.IdUser == id);
         }
+
+        public async Task InsertAsync(User user)
+        {
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            user.Active = true;
+            _context.User.Add(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }
