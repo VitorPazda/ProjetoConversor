@@ -50,20 +50,14 @@ namespace ProjetoConversor.Server.Controllers
         [HttpPut("{id:int}")]
         public async Task<ActionResult<User>> EditUser(int id, User user)
         {
-            var existingUser = await _context.User.FindAsync(id);
+            var existingUser = await _userService.UpdateAsync(id, user);
 
             if (existingUser == null)
             {
                 return NotFound();
             }
 
-            existingUser.Name = user.Name;
-            existingUser.AccountType = user.AccountType;
-            existingUser.Password = user.Password;
-            existingUser.Active = user.Active;
-
-            await _context.SaveChangesAsync();
-            return existingUser;
+            return Ok(existingUser);
         }
 
         // DELETE User from DB

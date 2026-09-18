@@ -40,9 +40,19 @@ namespace ProjetoConversor.Server.Services
         {
             var existingUser = await _context.User.FindAsync(id);
 
+            if (existingUser == null)
+            {
+                return null;
+            }
+
+            // Validate if the password has changed
+            if (!string.IsNullOrWhiteSpace(user.Password) && (existingUser.Password != user.Password))
+            {
+                existingUser.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+            }
+            
             existingUser.Name = user.Name;
             existingUser.AccountType = user.AccountType;
-            existingUser.Password = user.Password;
             existingUser.Active = user.Active;
 
             await _context.SaveChangesAsync();
