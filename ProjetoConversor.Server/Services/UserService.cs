@@ -76,8 +76,29 @@ namespace ProjetoConversor.Server.Services
             }
             catch (DBConcurrencyException ex)
             {
-                throw new Exception("Bizarre error", ex);
+                throw new Exception("Error: ", ex);
             }
+        }
+
+        public async Task<User?> LoginAsync(string name, string password)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(user => user.Name == user.Name);
+
+            // Verify that the user is not null first
+            if (user == null)
+            {
+                return null;
+            }
+
+            bool isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
+
+            if (!isValidPassword)
+            {
+                return null;
+            }
+
+            // Credenciais válidas
+            return user;
         }
     }
 }
