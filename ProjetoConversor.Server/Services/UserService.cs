@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjetoConversor.Data;
 using ProjetoConversor.Models;
+using ProjetoConversor.Data;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Identity.Data;
 using ProjetoConversor.Server.Models;
-using System.Globalization;
-using System.Text;
 
 namespace ProjetoConversor.Server.Services
 {
@@ -33,6 +34,19 @@ namespace ProjetoConversor.Server.Services
             user.Active = true;
             _context.User.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User> UpdateAsync(int id, User user)
+        {
+            var existingUser = await _context.User.FindAsync(id);
+
+            existingUser.Name = user.Name;
+            existingUser.AccountType = user.AccountType;
+            existingUser.Password = user.Password;
+            existingUser.Active = user.Active;
+
+            await _context.SaveChangesAsync();
+            return existingUser;
         }
     }
 }
