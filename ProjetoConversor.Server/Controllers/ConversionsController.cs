@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoConversor.Data;
-using ProjetoConversor.Models;
 using ProjetoConversor.Server.Services;
-using System.Text;
 
 namespace ProjetoConversor.Server.Controllers
 {
@@ -29,7 +25,7 @@ namespace ProjetoConversor.Server.Controllers
             return Ok(conversion);
         }
 
-        [HttpPost]
+        [HttpPost("convert")]
         public async Task<IActionResult> ConvertPdf([FromForm] int userId, [FromForm] string bank, [FromForm] IFormFile? file)
         {
             if (file == null || file.Length == 0)

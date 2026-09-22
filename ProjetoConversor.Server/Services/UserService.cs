@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity.Data;
-using ProjetoConversor.Server.Models;
 using System.Data;
 
 namespace ProjetoConversor.Server.Services
