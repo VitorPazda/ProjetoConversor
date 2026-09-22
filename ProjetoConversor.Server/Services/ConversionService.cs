@@ -1,13 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity.Data;
-using ProjetoConversor.Server.Models;
-using System.Data;
-using Microsoft.VisualBasic;
+using System.Text;
 
 namespace ProjetoConversor.Server.Services
 {
@@ -30,21 +25,34 @@ namespace ProjetoConversor.Server.Services
             return await _context.Conversion.FirstOrDefaultAsync(conversion => conversion.IdConversion == id);
         }
 
-        public async Task<ConversionModel> InsertAsync(int userId, string bank, IFormFile file)
+        public async Task<(byte[] FileBytes, string FileName)> ProcessAndSaveConversionAsync(int userId, string bank, IFormFile file)
         {
+            using var stream = file.OpenReadStream();
+            var converter = new SicoobConverter();
+            var text = converter.ExtractText(stream);
+
+            var parser = new SicoobParser();
+            var statement = parser.Parse(text);
+
+            var ofxGenerator = new OfxGenerator();
+            var ofx = ofxGenerator.Generate(statement);
+
             var conversion = new ConversionModel
             {
                 UserId = userId,
                 Bank = bank,
                 FileName = file.FileName,
                 Date = DateTime.Now,
-                Status = "Pending"
+                Status = "Success"
             };
 
             _context.Conversion.Add(conversion);
             await _context.SaveChangesAsync();
 
-            return conversion;
+            var fileName = $"{DateTime.Now:dd-MM-yyyy}.ofx";
+            var bytes = Encoding.GetEncoding(1252).GetBytes(ofx);
+
+            return (bytes, fileName);
         }
     }
 }
