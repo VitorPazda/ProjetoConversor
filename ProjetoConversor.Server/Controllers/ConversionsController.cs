@@ -13,10 +13,20 @@ namespace ProjetoConversor.Server.Controllers
     public class ConversionsController : ControllerBase
     {
         private readonly ProjetoConversorContext _context;
+        private readonly ConversionService _conversionService;
 
-        public ConversionsController(ProjetoConversorContext context)
+        public ConversionsController(ProjetoConversorContext context, ConversionService conversionService)
         {
             _context = context;
+            _conversionService = conversionService;
+        }
+
+        // GET All Conversion from db
+        [HttpGet]
+        public async Task<IActionResult> GetConversions()
+        {
+            var conversion = await _conversionService.FindAllAsync();
+            return Ok(conversion);
         }
 
         // POST Conversion
@@ -25,22 +35,12 @@ namespace ProjetoConversor.Server.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest("Arquivo não enviado.");
+                return BadRequest(new { message = "Arquivo não enviado ou está vazio." });
             }
 
-            var conversion = new ConversionModel
-            {
-                UserId = userId,
-                Bank = bank,
-                FileName = file.FileName,
-                Date = DateTime.Now,
-                Status = "Pending"
-            };
+            var result = await _conversionService.InsertAsync(userId, bank, file);
 
-            _context.Conversion.Add(conversion);
-            await _context.SaveChangesAsync();
-
-            return StatusCode(StatusCodes.Status201Created);
+            return StatusCode(StatusCodes.Status201Created, result);
         }
 
         [HttpPost("convert")]

@@ -26,7 +26,7 @@ namespace ProjetoConversor.Server.Services
 
         public async Task<User?> FindByIdAsync(int id)
         {
-            return await _context.User.FirstOrDefaultAsync(u => u.IdUser == id);
+            return await _context.User.FirstOrDefaultAsync(user => user.IdUser == id);
         }
 
         public async Task InsertAsync(User user)

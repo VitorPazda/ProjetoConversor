@@ -13,12 +13,10 @@ namespace ProjetoConversor.Server.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly ProjetoConversorContext _context;
         private readonly UserService _userService;
 
-        public UsersController(ProjetoConversorContext context, UserService userService)
+        public UsersController(UserService userService)
         {
-            _context = context;
             _userService = userService;
         }
 

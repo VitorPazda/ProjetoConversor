@@ -28,6 +28,9 @@ builder.Services.AddScoped<SeedingService>();
 // Add UserService
 builder.Services.AddScoped<UserService>();
 
+// Add ConversionService
+builder.Services.AddScoped<ConversionService>();
+
 // Add services to the container.
 
 builder.Services.AddControllers();
