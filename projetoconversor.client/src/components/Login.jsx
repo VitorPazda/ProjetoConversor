@@ -29,6 +29,7 @@ function Login({ onLoginSuccess }) {
             }
 
             const data = await response.json()
+            
             if (onLoginSuccess) {
                 onLoginSuccess(data)
             }
@@ -74,9 +75,9 @@ function Login({ onLoginSuccess }) {
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
+                    <button 
+                        type="submit" 
+                        disabled={loading} 
                         style={loading ? { ...styles.button, opacity: 0.7 } : styles.button}
                     >
                         {loading ? 'Entrando...' : 'Entrar'}
