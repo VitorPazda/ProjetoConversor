@@ -93,7 +93,6 @@ namespace ProjetoConversor.Server.Services
                 return null;
             }
 
-            // Credenciais válidas
             return user;
         }
     }

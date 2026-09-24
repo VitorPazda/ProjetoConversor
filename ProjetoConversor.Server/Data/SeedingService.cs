@@ -1,5 +1,4 @@
 ﻿using ProjetoConversor.Models;
-using BCrypt.Net;
 
 namespace ProjetoConversor.Data
 {

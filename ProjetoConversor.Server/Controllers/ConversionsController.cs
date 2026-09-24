@@ -35,7 +35,7 @@ namespace ProjetoConversor.Server.Controllers
 
             try
             {
-                var (fileBytes, fileName) = await _conversionService.ProcessAndSaveConversionAsync(userId, bank, file);
+                var (fileBytes, fileName) = await _conversionService.SaveConversionAsync(userId, bank, file);
 
                 return File(fileBytes, "application/x-ofx", fileName);
             }

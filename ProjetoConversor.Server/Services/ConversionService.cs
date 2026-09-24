@@ -25,7 +25,7 @@ namespace ProjetoConversor.Server.Services
             return await _context.Conversion.FirstOrDefaultAsync(conversion => conversion.IdConversion == id);
         }
 
-        public async Task<(byte[] FileBytes, string FileName)> ProcessAndSaveConversionAsync(int userId, string bank, IFormFile file)
+        public async Task<(byte[] FileBytes, string FileName)> SaveConversionAsync(int userId, string bank, IFormFile file)
         {
             using var stream = file.OpenReadStream();
             var converter = new SicoobConverter();
