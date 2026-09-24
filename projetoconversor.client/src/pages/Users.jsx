@@ -5,7 +5,7 @@ function Users() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    
+
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formData, setFormData] = useState({ id: null, name: '', password: '', accountType: 'Usuário' });
     const [formLoading, setFormLoading] = useState(false);
@@ -30,7 +30,7 @@ function Users() {
 
     const handleOpenForm = (user = null) => {
         if (user) {
-            setFormData({ id: user.id, name: user.name, password: '', accountType: user.accountType });
+            setFormData({ id: user.idUser, name: user.name, password: '', accountType: user.accountType });
         } else {
             setFormData({ id: null, name: '', password: '', accountType: 'Usuário' });
         }
@@ -50,7 +50,7 @@ function Users() {
             name: formData.name,
             accountType: formData.accountType
         };
-        
+
         if (!isEditing || formData.password) {
             payload.password = formData.password;
         } else {
@@ -105,7 +105,7 @@ function Users() {
                     )}
                 </div>
             </header>
-            
+
             <div style={styles.content}>
                 {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -120,29 +120,29 @@ function Users() {
                         <form onSubmit={handleSubmit} style={styles.form}>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Nome</label>
-                                <input 
-                                    type="text" 
-                                    value={formData.name} 
-                                    onChange={e => setFormData({...formData, name: e.target.value})} 
-                                    required 
+                                <input
+                                    type="text"
+                                    value={formData.name}
+                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                    required
                                     style={styles.input}
                                 />
                             </div>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Senha {formData.id && '(Opcional)'}</label>
-                                <input 
-                                    type="password" 
-                                    value={formData.password} 
-                                    onChange={e => setFormData({...formData, password: e.target.value})} 
-                                    required={!formData.id} 
+                                <input
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                    required={!formData.id}
                                     style={styles.input}
                                 />
                             </div>
                             <div style={styles.inputGroup}>
                                 <label style={styles.label}>Tipo de Conta</label>
-                                <select 
-                                    value={formData.accountType} 
-                                    onChange={e => setFormData({...formData, accountType: e.target.value})}
+                                <select
+                                    value={formData.accountType}
+                                    onChange={e => setFormData({ ...formData, accountType: e.target.value })}
                                     style={styles.select}
                                 >
                                     <option value="Usuário">Usuário Comum</option>
@@ -175,8 +175,8 @@ function Users() {
                                         </tr>
                                     ) : (
                                         users.map(user => (
-                                            <tr key={user.id} style={styles.tr}>
-                                                <td style={styles.td}>{user.id}</td>
+                                            <tr key={user.idUser} style={styles.tr}>
+                                                <td style={styles.td}>{user.idUser}</td>
                                                 <td style={styles.td}>{user.name}</td>
                                                 <td style={styles.td}>
                                                     <span style={user.accountType === 'Administrator' ? styles.badgeAdmin : styles.badgeUser}>
@@ -188,7 +188,7 @@ function Users() {
                                                         <button type="button" style={styles.actionBtn} onClick={() => handleOpenForm(user)} title="Editar">
                                                             <Pencil size={18} />
                                                         </button>
-                                                        <button type="button" style={{...styles.actionBtn, color: '#f38ba8'}} onClick={() => handleDelete(user.id)} title="Excluir">
+                                                        <button type="button" style={{ ...styles.actionBtn, color: '#f38ba8' }} onClick={() => handleDelete(user.idUser)} title="Excluir">
                                                             <Trash2 size={18} />
                                                         </button>
                                                     </div>
