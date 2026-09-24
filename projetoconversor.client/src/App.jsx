@@ -1,26 +1,41 @@
 ﻿import { useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login'
+import Layout from './components/Layout'
+import Dashboard from './pages/Dashboard'
+import Users from './pages/Users'
 
 function App() {
     const [user, setUser] = useState(null)
 
-    // Se o usuário ainda não estiver logado, exibe o Login
-    if (!user) {
-        return <Login onLoginSuccess={(userData) => setUser(userData)} />
-    }
-
-    // Se estiver logado, mostra o conteúdo principal do sistema
     return (
-        <main>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem' }}>
-                <h2>Olá, {user.name}! ({user.accountType})</h2>
-                <button onClick={() => setUser(null)}>Sair</button>
-            </div>
+        <BrowserRouter>
+            <Routes>
+                {/* Public Route */}
+                <Route 
+                    path="/login" 
+                    element={!user ? <Login onLoginSuccess={(userData) => setUser(userData)} /> : <Navigate to="/dashboard" replace />} 
+                />
 
-            <hr />
+                {/* Protected Routes inside Layout */}
+                <Route 
+                    path="/" 
+                    element={<Layout user={user} onLogout={() => setUser(null)} />}
+                >
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    
+                    {/* Admin Route */}
+                    <Route 
+                        path="users" 
+                        element={user?.accountType === 'Administrator' ? <Users /> : <Navigate to="/dashboard" replace />} 
+                    />
+                </Route>
 
-            {/* Aqui entra suas telas do conversor PDF/OFX */}
-        </main>
+                {/* Fallback Route */}
+                <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+        </BrowserRouter>
     )
 }
 
