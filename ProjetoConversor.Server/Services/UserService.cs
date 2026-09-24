@@ -78,7 +78,7 @@ namespace ProjetoConversor.Server.Services
 
         public async Task<User?> LoginAsync(string name, string password)
         {
-            var user = await _context.User.FirstOrDefaultAsync(user => user.Name == user.Name);
+            var user = await _context.User.FirstOrDefaultAsync(user => user.Name == name);
 
             // Verify that the user is not null first
             if (user == null)
