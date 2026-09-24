@@ -30,7 +30,7 @@ namespace ProjetoConversor.Server.Controllers
         {
             if (file == null || file.Length == 0)
             {
-                return BadRequest(new { message = "Arquivo não enviado." });
+                return BadRequest(new { message = "File not sent." });
             }
 
             try
@@ -41,7 +41,7 @@ namespace ProjetoConversor.Server.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = $"Falha ao converter o arquivo: {ex.Message}" });
+                return BadRequest(new { message = $"Conversion failed: {ex.Message}" });
             }
         }
     }
