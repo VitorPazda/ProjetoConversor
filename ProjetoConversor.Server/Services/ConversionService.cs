@@ -60,6 +60,7 @@ namespace ProjetoConversor.Server.Services
 
                 return (bytes, fileName);
             }
+
             catch (Exception ex)
             {
                 conversion.Status = "Failed";

@@ -28,9 +28,19 @@ namespace ProjetoConversor.Server.Controllers
         [HttpPost("convert")]
         public async Task<IActionResult> ConvertPdf([FromForm] int userId, [FromForm] string bank, [FromForm] IFormFile? file)
         {
+            // Validate if the file was sent
             if (file == null || file.Length == 0)
             {
                 return BadRequest(new { message = "File not sent." });
+            }
+
+            // Validate if the file is .pdf
+            var allowedExtensions = new[] { ".pdf" };
+            var fileExtesion = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(fileExtesion))
+            {
+                return BadRequest(new { message = "Invalid file" });
             }
 
             try
@@ -39,6 +49,7 @@ namespace ProjetoConversor.Server.Controllers
 
                 return File(fileBytes, "application/x-ofx", fileName);
             }
+
             catch (Exception ex)
             {
                 return BadRequest(new { message = $"Conversion failed: {ex.Message}" });
