@@ -29,7 +29,6 @@ function Login({ onLoginSuccess }) {
             }
 
             const data = await response.json()
-
             if (onLoginSuccess) {
                 onLoginSuccess(data)
             }
