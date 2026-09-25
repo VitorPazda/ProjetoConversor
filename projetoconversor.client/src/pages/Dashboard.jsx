@@ -13,7 +13,7 @@ function Dashboard() {
             
             <div style={styles.content}>
                 <div style={styles.card}>
-                    <ConversionForm userId={user?.id} />
+                    <ConversionForm userId={user?.idUser} />
                 </div>
             </div>
         </div>
