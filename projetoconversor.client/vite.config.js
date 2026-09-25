@@ -46,6 +46,7 @@ export default defineConfig({
         }
     },
     server: {
+        host: '0.0.0.0', // To make the server accessible
         proxy: {
             '/api': {
                 target,

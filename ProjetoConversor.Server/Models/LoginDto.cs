@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ProjetoConversor.Models
+﻿namespace ProjetoConversor.Models
 {
     public class LoginDto
     {
