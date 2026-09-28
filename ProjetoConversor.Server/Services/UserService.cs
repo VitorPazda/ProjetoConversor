@@ -87,6 +87,12 @@ namespace ProjetoConversor.Server.Services
                 return null;
             }
 
+            // Verify if the user is active
+            if (!user.Active)
+            {
+                return null;
+            }
+
             bool isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
 
             if (!isValidPassword)
