@@ -11,16 +11,17 @@ var cultureInfo = new CultureInfo("pt-BR");
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
-// Connection with database (MySQL)
+// Connection with database (MySQL/PostgreSQL)
 var connectionString =
     builder.Configuration.GetConnectionString("ProjetoConversorContext");
 
+/* Used in Mysql
 builder.Services.AddDbContext<ProjetoConversorContext>(options =>
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
-    )
-);
+    options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString)));
+*/
+
+builder.Services.AddDbContext<ProjetoConversorContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Seeding Service
 builder.Services.AddScoped<SeedingService>();
