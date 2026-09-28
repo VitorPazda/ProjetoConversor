@@ -7,7 +7,7 @@ function Users() {
     const [error, setError] = useState('');
 
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [formData, setFormData] = useState({ id: null, name: '', password: '', accountType: 'Usuário' });
+    const [formData, setFormData] = useState({ id: null, name: '', username: '', password: '', accountType: 'Usuário', active: true });
     const [formLoading, setFormLoading] = useState(false);
 
     useEffect(() => {
@@ -30,9 +30,9 @@ function Users() {
 
     const handleOpenForm = (user = null) => {
         if (user) {
-            setFormData({ id: user.idUser, name: user.name, password: '', accountType: user.accountType });
+            setFormData({ id: user.idUser, name: user.name, username: user.username, password: '', accountType: user.accountType, active: user.active });
         } else {
-            setFormData({ id: null, name: '', password: '', accountType: 'Usuário' });
+            setFormData({ id: null, name: '', username: '', password: '', accountType: 'Usuário', active: true });
         }
         setIsFormOpen(true);
     };
@@ -48,7 +48,9 @@ function Users() {
 
         const payload = {
             name: formData.name,
-            accountType: formData.accountType
+            username: formData.username,
+            accountType: formData.accountType,
+            active: formData.active
         };
 
         if (!isEditing || formData.password) {
@@ -129,6 +131,16 @@ function Users() {
                                 />
                             </div>
                             <div style={styles.inputGroup}>
+                                <label style={styles.label}>Nome de Usuário (Login)</label>
+                                <input
+                                    type="text"
+                                    value={formData.username}
+                                    onChange={e => setFormData({ ...formData, username: e.target.value })}
+                                    required
+                                    style={styles.input}
+                                />
+                            </div>
+                            <div style={styles.inputGroup}>
                                 <label style={styles.label}>Senha {formData.id && '(Opcional)'}</label>
                                 <input
                                     type="password"
@@ -149,6 +161,18 @@ function Users() {
                                     <option value="Administrator">Administrador</option>
                                 </select>
                             </div>
+                            {formData.id && (
+                                <div style={{ ...styles.inputGroup, flexDirection: 'row', alignItems: 'center', marginTop: '0.5rem' }}>
+                                    <input
+                                        type="checkbox"
+                                        id="activeCheckbox"
+                                        checked={formData.active}
+                                        onChange={e => setFormData({ ...formData, active: e.target.checked })}
+                                        style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                    />
+                                    <label htmlFor="activeCheckbox" style={{ ...styles.label, cursor: 'pointer' }}>Usuário Ativo</label>
+                                </div>
+                            )}
                             <button type="submit" disabled={formLoading} style={styles.submitButton}>
                                 {formLoading ? 'Salvando...' : 'Salvar'}
                             </button>
@@ -164,7 +188,9 @@ function Users() {
                                     <tr>
                                         <th style={styles.th}>ID</th>
                                         <th style={styles.th}>Nome</th>
+                                        <th style={styles.th}>Login</th>
                                         <th style={styles.th}>Tipo</th>
+                                        <th style={styles.th}>Status</th>
                                         <th style={styles.th}>Ações</th>
                                     </tr>
                                 </thead>
@@ -178,9 +204,15 @@ function Users() {
                                             <tr key={user.idUser} style={styles.tr}>
                                                 <td style={styles.td}>{user.idUser}</td>
                                                 <td style={styles.td}>{user.name}</td>
+                                                <td style={styles.td}>{user.username}</td>
                                                 <td style={styles.td}>
                                                     <span style={user.accountType === 'Administrator' ? styles.badgeAdmin : styles.badgeUser}>
                                                         {user.accountType === 'Administrator' ? 'Administrador' : 'Usuário'}
+                                                    </span>
+                                                </td>
+                                                <td style={styles.td}>
+                                                    <span style={user.active ? styles.badgeActive : styles.badgeInactive}>
+                                                        {user.active ? 'Ativo' : 'Inativo'}
                                                     </span>
                                                 </td>
                                                 <td style={styles.td}>
@@ -341,6 +373,22 @@ const styles = {
     badgeUser: {
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         color: 'var(--color-text-secondary)',
+        padding: '0.3rem 0.6rem',
+        borderRadius: '20px',
+        fontSize: '0.8rem',
+        fontWeight: '600',
+    },
+    badgeActive: {
+        backgroundColor: 'rgba(1, 106, 50, 0.2)',
+        color: '#4ade80',
+        padding: '0.3rem 0.6rem',
+        borderRadius: '20px',
+        fontSize: '0.8rem',
+        fontWeight: '600',
+    },
+    badgeInactive: {
+        backgroundColor: 'rgba(243, 139, 168, 0.15)',
+        color: '#f38ba8',
         padding: '0.3rem 0.6rem',
         borderRadius: '20px',
         fontSize: '0.8rem',
