@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ProjetoConversor.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class TestePostgreSQL : Migration
+    public partial class Username : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +21,7 @@ namespace ProjetoConversor.Server.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     Bank = table.Column<string>(type: "text", nullable: false),
                     FileName = table.Column<string>(type: "text", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -37,6 +37,7 @@ namespace ProjetoConversor.Server.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     AccountType = table.Column<string>(type: "text", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     Active = table.Column<bool>(type: "boolean", nullable: false)
                 },

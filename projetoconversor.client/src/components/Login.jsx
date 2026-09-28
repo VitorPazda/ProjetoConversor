@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 function Login({ onLoginSuccess }) {
-    const [name, setName] = useState('')
+    const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
@@ -18,7 +18,7 @@ function Login({ onLoginSuccess }) {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    name: name,
+                    username: username,
                     password: password
                 })
             })
@@ -55,8 +55,8 @@ function Login({ onLoginSuccess }) {
                         <label style={styles.label}>Nome de Usuário</label>
                         <input
                             type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                             placeholder="Digite seu usuário..."
                             required
                             style={styles.input}

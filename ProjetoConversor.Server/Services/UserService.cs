@@ -50,6 +50,7 @@ namespace ProjetoConversor.Server.Services
             
             existingUser.Name = user.Name;
             existingUser.AccountType = user.AccountType;
+            existingUser.Username = user.Username;
             existingUser.Active = user.Active;
 
             await _context.SaveChangesAsync();
@@ -76,9 +77,9 @@ namespace ProjetoConversor.Server.Services
             }
         }
 
-        public async Task<User?> LoginAsync(string name, string password)
+        public async Task<User?> LoginAsync(string username, string password)
         {
-            var user = await _context.User.FirstOrDefaultAsync(user => user.Name == name);
+            var user = await _context.User.FirstOrDefaultAsync(user => user.Username.ToLower() == username.ToLower());
 
             // Verify that the user is not null first
             if (user == null)

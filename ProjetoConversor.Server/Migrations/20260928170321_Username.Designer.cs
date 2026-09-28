@@ -12,8 +12,8 @@ using ProjetoConversor.Data;
 namespace ProjetoConversor.Server.Migrations
 {
     [DbContext(typeof(ProjetoConversorContext))]
-    [Migration("20260928142959_PostgreUserFix")]
-    partial class PostgreUserFix
+    [Migration("20260928170321_Username")]
+    partial class Username
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,6 +76,10 @@ namespace ProjetoConversor.Server.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
