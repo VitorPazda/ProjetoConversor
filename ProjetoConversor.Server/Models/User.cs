@@ -8,6 +8,7 @@ namespace ProjetoConversor.Models
         public int IdUser { get; set; }
         public string Name { get; set; } = string.Empty;
         public string AccountType { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public bool Active { get; set; } = false;
 
@@ -15,10 +16,11 @@ namespace ProjetoConversor.Models
         {
         }
 
-        public User(string name, string accountType, string password, bool active)
+        public User(string name, string accountType, string username, string password, bool active)
         {
             Name = name;
             AccountType = accountType;
+            Username = username;
             Password = password;
             Active = active;
         }

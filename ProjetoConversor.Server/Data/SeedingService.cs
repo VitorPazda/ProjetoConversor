@@ -23,8 +23,8 @@ namespace ProjetoConversor.Data
 
             // If not, populate the db
             
-            User user01 = new User("Vitor", "Administrator", BCrypt.Net.BCrypt.HashPassword("1234"), true);
-            User user02 = new User("Ana", "User", BCrypt.Net.BCrypt.HashPassword("1234"), true);
+            User user01 = new User("Vitor", "Administrator", "vitor", BCrypt.Net.BCrypt.HashPassword("1234"), true);
+            User user02 = new User("Ana", "User", "ana", BCrypt.Net.BCrypt.HashPassword("1234"), true);
 
             // Add users to db
             _context.User.AddRange(user01, user02);
