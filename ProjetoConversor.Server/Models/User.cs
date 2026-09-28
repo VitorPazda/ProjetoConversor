@@ -15,9 +15,8 @@ namespace ProjetoConversor.Models
         {
         }
 
-        public User(int idUser, string name, string accountType, string password, bool active)
+        public User(string name, string accountType, string password, bool active)
         {
-            IdUser = idUser;
             Name = name;
             AccountType = accountType;
             Password = password;

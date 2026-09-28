@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjetoConversor.Data;
@@ -11,9 +12,11 @@ using ProjetoConversor.Data;
 namespace ProjetoConversor.Server.Migrations
 {
     [DbContext(typeof(ProjetoConversorContext))]
-    partial class ProjetoConversorContextModelSnapshot : ModelSnapshot
+    [Migration("20260928142959_PostgreUserFix")]
+    partial class PostgreUserFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

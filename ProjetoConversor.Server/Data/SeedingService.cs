@@ -1,4 +1,6 @@
 ﻿using ProjetoConversor.Models;
+using System.Net.NetworkInformation;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ProjetoConversor.Data
 {
@@ -20,11 +22,17 @@ namespace ProjetoConversor.Data
             }
 
             // If not, populate the db
-            User user01 = new User(1, "Vitor", "Administrator", BCrypt.Net.BCrypt.HashPassword("1234"), true);
-            User user02 = new User(2, "Ana", "User", BCrypt.Net.BCrypt.HashPassword("1234"), true);
+            
+            User user01 = new User("Vitor", "Administrator", BCrypt.Net.BCrypt.HashPassword("1234"), true);
+            User user02 = new User("Ana", "User", BCrypt.Net.BCrypt.HashPassword("1234"), true);
 
-            // Add to db
+            // Add users to db
             _context.User.AddRange(user01, user02);
+            _context.SaveChanges();
+           
+            // Then the conversion
+            ConversionModel conversion01 = new ConversionModel(user01.IdUser, "Sicoob", "Extrato_Exemplo_Sicoob.pdf", DateTime.Now, "Success");
+            _context.Conversion.Add(conversion01);
             _context.SaveChanges();
         }
     }

@@ -32,11 +32,14 @@ builder.Services.AddScoped<UserService>();
 // Add ConversionService
 builder.Services.AddScoped<ConversionService>();
 
-// Add services to the container.
-
+// Add services to the container
 builder.Services.AddControllers();
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Make DateTime work with PostgreSQL
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var app = builder.Build();
 

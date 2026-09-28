@@ -15,5 +15,14 @@ namespace ProjetoConversor.Models
         public ConversionModel()
         {
         }
+
+        public ConversionModel(int userId, string bank, string fileName, DateTime date, string status)
+        {
+            UserId = userId;
+            Bank = bank;
+            FileName = fileName;
+            Date = date;
+            Status = status;
+        }
     }
 }
