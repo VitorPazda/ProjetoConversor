@@ -6,10 +6,20 @@ namespace ProjetoConversor.Models
     {
         [Key]
         public int IdConversion { get; set; }
+
+        [Required]
         public int UserId { get; set; } = 0;
+
+        [Required]
         public string Bank { get; set; } = string.Empty;
+
+        [Required]
         public string FileName { get; set; } = string.Empty;
+
+        [Required]
         public DateTime Date { get; set; }
+
+        [Required]
         public string Status { get; set; } = string.Empty;
 
         public ConversionModel()

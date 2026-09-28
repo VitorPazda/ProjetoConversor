@@ -21,11 +21,13 @@ namespace ProjetoConversor.Data
 
             modelBuilder.Entity<User>()
                 .Property(u => u.IdUser)
-                .UseIdentityByDefaultColumn();
+                .UseIdentityByDefaultColumn()
+                .IsRequired(); // Force to be not null on the db
 
             modelBuilder.Entity<ConversionModel>()
                 .Property(c => c.IdConversion)
-                .UseIdentityByDefaultColumn();
+                .UseIdentityByDefaultColumn()
+                .IsRequired(); // Force to be not null on the db
         }
     }
 }
