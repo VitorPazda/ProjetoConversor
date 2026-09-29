@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
@@ -23,6 +23,23 @@ namespace ProjetoConversor.Server.Services
         public async Task<ConversionModel?> FindByIdAsync(int id)
         {
             return await _context.Conversion.FirstOrDefaultAsync(conversion => conversion.IdConversion == id);
+        }
+
+        // Return conversion by UserId
+        public async Task<List<ConversionModel>> ConversionResultAsync(int userId)
+        {
+            return await _context.Conversion
+                .Where(conversion => conversion.UserId == userId)
+                .Select(conversion => new ConversionModel
+                {
+                    IdConversion = conversion.IdConversion,
+                    UserId = conversion.UserId,
+                    Bank = conversion.Bank,
+                    FileName = conversion.FileName,
+                    Date = conversion.Date,
+                    Status = conversion.Status
+                })
+                .ToListAsync();
         }
 
         public async Task<(byte[] FileBytes, string FileName)> SaveConversionAsync(int userId, string bank, IFormFile file)
@@ -50,13 +67,14 @@ namespace ProjetoConversor.Server.Services
                 var ofxGenerator = new OfxGenerator();
                 var ofx = ofxGenerator.Generate(statement);
 
-                // If everything went well, set the status to "Success" and save to db
-                conversion.Status = "Success";
-                _context.Conversion.Add(conversion);
-                await _context.SaveChangesAsync();
-
                 var fileName = $"{DateTime.Now:dd-MM-yyyy}.ofx";
                 var bytes = Encoding.GetEncoding(1252).GetBytes(ofx);
+
+                // If everything went well, set the status to "Success" and save to db
+                conversion.Status = "Success";
+                conversion.ConvertedFile = bytes;
+                _context.Conversion.Add(conversion);
+                await _context.SaveChangesAsync();
 
                 return (bytes, fileName);
             }

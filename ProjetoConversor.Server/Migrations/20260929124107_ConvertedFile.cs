@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ProjetoConversor.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class Username : Migration
+    public partial class ConvertedFile : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,7 @@ namespace ProjetoConversor.Server.Migrations
                     Bank = table.Column<string>(type: "text", nullable: false),
                     FileName = table.Column<string>(type: "text", nullable: false),
                     Date = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    ConvertedFile = table.Column<byte[]>(type: "bytea", nullable: true),
                     Status = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ProjetoConversor.Data;
 using ProjetoConversor.Server.Services;
 
@@ -23,6 +23,28 @@ namespace ProjetoConversor.Server.Controllers
         {
             var conversion = await _conversionService.FindAllAsync();
             return Ok(conversion);
+        }
+
+        // GET Conversions by UserId
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetUserConversions(int userId)
+        {
+            var result = await _conversionService.ConversionResultAsync(userId);
+            return Ok(result);
+        }
+
+        // GET Download converted file
+        [HttpGet("download/{id}")]
+        public async Task<IActionResult> DownloadConversion(int id)
+        {
+            var conversion = await _conversionService.FindByIdAsync(id);
+            if (conversion == null || conversion.ConvertedFile == null)
+            {
+                return NotFound(new { message = "Conversion not found or file missing." });
+            }
+
+            var fileName = $"{conversion.Date:dd-MM-yyyy}.ofx";
+            return File(conversion.ConvertedFile, "application/x-ofx", fileName);
         }
 
         [HttpPost("convert")]

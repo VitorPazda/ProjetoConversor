@@ -1,9 +1,10 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './components/Login'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Users from './pages/Users'
+import ConversionsHistory from './pages/ConversionsHistory'
 
 function App() {
     const [user, setUser] = useState(null)
@@ -24,6 +25,7 @@ function App() {
                 >
                     <Route index element={<Navigate to="/dashboard" replace />} />
                     <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="history" element={<ConversionsHistory user={user} />} />
                     
                     {/* Admin Route */}
                     <Route 

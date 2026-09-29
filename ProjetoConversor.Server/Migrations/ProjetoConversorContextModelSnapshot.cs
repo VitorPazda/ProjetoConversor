@@ -34,6 +34,9 @@ namespace ProjetoConversor.Server.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<byte[]>("ConvertedFile")
+                        .HasColumnType("bytea");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone");
 

@@ -12,8 +12,8 @@ using ProjetoConversor.Data;
 namespace ProjetoConversor.Server.Migrations
 {
     [DbContext(typeof(ProjetoConversorContext))]
-    [Migration("20260928172702_NotNullUpdate")]
-    partial class NotNullUpdate
+    [Migration("20260929124107_ConvertedFile")]
+    partial class ConvertedFile
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,6 +36,9 @@ namespace ProjetoConversor.Server.Migrations
                     b.Property<string>("Bank")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<byte[]>("ConvertedFile")
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp without time zone");

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FileUp, Users, LogOut, User } from 'lucide-react';
+import { FileUp, Users, LogOut, User, History } from 'lucide-react';
 
 function Sidebar({ user, onLogout }) {
     return (
@@ -18,6 +18,14 @@ function Sidebar({ user, onLogout }) {
                 >
                     <FileUp size={20} />
                     <span>Conversão</span>
+                </NavLink>
+
+                <NavLink 
+                    to="/history" 
+                    style={({ isActive }) => isActive ? { ...styles.link, ...styles.activeLink } : styles.link}
+                >
+                    <History size={20} />
+                    <span>Histórico</span>
                 </NavLink>
 
                 {user?.accountType === 'Administrator' && (

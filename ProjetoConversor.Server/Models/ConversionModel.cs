@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProjetoConversor.Models
 {
@@ -18,6 +18,8 @@ namespace ProjetoConversor.Models
 
         [Required]
         public DateTime Date { get; set; }
+
+        public byte[]? ConvertedFile { get; set; }
 
         [Required]
         public string Status { get; set; } = string.Empty;
