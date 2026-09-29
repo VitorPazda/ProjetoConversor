@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Download, Clock, CheckCircle2, XCircle } from 'lucide-react';
 
-const ConversionsHistory = ({ user }) => {
+function ConversionsHistory({ user }) {
     const [conversions, setConversions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -14,7 +15,7 @@ const ConversionsHistory = ({ user }) => {
             if (!user) return;
             const response = await fetch(`/api/conversions/user/${user.idUser}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch conversions');
+                throw new Error('Falha ao carregar o histórico');
             }
             const data = await response.json();
             setConversions(data);
@@ -26,73 +27,230 @@ const ConversionsHistory = ({ user }) => {
     };
 
     const handleDownload = (id, date) => {
-        // Construct the download URL
         const downloadUrl = `/api/conversions/download/${id}`;
-        
-        // Trigger download
         const a = document.createElement('a');
         a.href = downloadUrl;
         const formattedDate = new Date(date).toLocaleDateString('pt-BR').replace(/\//g, '-');
-        a.download = `${formattedDate}.ofx`; // Optional fallback name
+        a.download = `${formattedDate}.ofx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
     };
 
-    if (loading) return <div className="p-4">Carregando histórico...</div>;
-    if (error) return <div className="p-4 text-red-500">Erro: {error}</div>;
-
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-6">Meu Histórico de Conversões</h1>
-            
-            {conversions.length === 0 ? (
-                <p>Nenhuma conversão encontrada.</p>
-            ) : (
-                <div className="overflow-x-auto bg-white rounded-lg shadow">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arquivo</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Banco</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {conversions.map((conv) => (
-                                <tr key={conv.idConversion}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{conv.idConversion}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{conv.fileName}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{conv.bank}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {new Date(conv.date).toLocaleDateString('pt-BR')} {new Date(conv.date).toLocaleTimeString('pt-BR')}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${conv.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                            {conv.status === 'Success' ? 'Sucesso' : 'Falha'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {conv.status === 'Success' && (
-                                            <button 
-                                                onClick={() => handleDownload(conv.idConversion, conv.date)}
-                                                className="text-blue-600 hover:text-blue-900 font-medium"
-                                            >
-                                                Baixar OFX
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+        <div style={styles.container}>
+            <header style={styles.header}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <Clock size={32} color="var(--color-primary)" />
+                    <h1 style={styles.title}>Meu Histórico</h1>
                 </div>
-            )}
+                <p style={styles.subtitle}>Veja todas as suas conversões passadas e baixe os arquivos OFX.</p>
+            </header>
+
+            <div style={styles.content}>
+                {error && <div style={styles.errorBox}>{error}</div>}
+
+                <div style={styles.card}>
+                    {loading ? (
+                        <p style={{ textAlign: 'center', padding: '2rem' }}>Carregando histórico...</p>
+                    ) : (
+                        <table style={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th style={styles.th}>Data e Hora</th>
+                                    <th style={styles.th}>Banco</th>
+                                    <th style={styles.th}>Arquivo Original</th>
+                                    <th style={styles.th}>Status</th>
+                                    <th style={{...styles.th, textAlign: 'right'}}>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {conversions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" style={{ textAlign: 'center', padding: '2rem', color: 'var(--color-text-secondary)' }}>
+                                            Nenhuma conversão encontrada.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    conversions.map(conv => {
+                                        const isSuccess = conv.status === 'Success';
+                                        return (
+                                            <tr key={conv.idConversion} style={styles.tr}>
+                                                <td style={styles.td}>
+                                                    <div style={styles.dateCell}>
+                                                        <span style={styles.dateMain}>{new Date(conv.date).toLocaleDateString('pt-BR')}</span>
+                                                        <span style={styles.dateSub}>{new Date(conv.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
+                                                </td>
+                                                <td style={styles.td}>
+                                                    <span style={styles.bankTag}>{conv.bank}</span>
+                                                </td>
+                                                <td style={styles.td}>
+                                                    <span style={styles.fileName}>{conv.fileName}</span>
+                                                </td>
+                                                <td style={styles.td}>
+                                                    <span style={isSuccess ? styles.badgeSuccess : styles.badgeError}>
+                                                        {isSuccess ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                                                        {isSuccess ? 'Sucesso' : 'Falha'}
+                                                    </span>
+                                                </td>
+                                                <td style={{...styles.td, textAlign: 'right'}}>
+                                                    {isSuccess && (
+                                                        <button 
+                                                            onClick={() => handleDownload(conv.idConversion, conv.date)}
+                                                            style={styles.downloadBtn}
+                                                            onMouseOver={(e) => {
+                                                                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                                                                e.currentTarget.style.color = '#ffffff';
+                                                            }}
+                                                            onMouseOut={(e) => {
+                                                                e.currentTarget.style.backgroundColor = 'rgba(1, 106, 50, 0.15)';
+                                                                e.currentTarget.style.color = 'var(--color-primary-light)';
+                                                            }}
+                                                            title="Baixar OFX"
+                                                        >
+                                                            <Download size={16} /> Baixar
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </div>
         </div>
     );
+}
+
+const styles = {
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2.5rem',
+        maxWidth: '1000px',
+        margin: '0 auto',
+        paddingTop: '1rem',
+    },
+    header: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem',
+    },
+    title: {
+        margin: 0,
+        fontSize: '2rem',
+        fontWeight: '700',
+        color: 'var(--color-text)',
+    },
+    subtitle: {
+        margin: 0,
+        color: 'var(--color-text-secondary)',
+        fontSize: '1.1rem',
+    },
+    content: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.5rem',
+    },
+    card: {
+        backgroundColor: 'var(--color-surface)',
+        padding: '2.5rem',
+        borderRadius: '16px',
+        border: '1px solid #313244',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        overflowX: 'auto',
+    },
+    table: {
+        width: '100%',
+        borderCollapse: 'collapse',
+    },
+    th: {
+        textAlign: 'left',
+        padding: '1rem',
+        borderBottom: '1px solid #313244',
+        color: 'var(--color-text-secondary)',
+        fontWeight: '600',
+    },
+    td: {
+        padding: '1rem',
+        borderBottom: '1px solid #313244',
+        verticalAlign: 'middle',
+    },
+    tr: {
+        transition: 'background-color 0.2s',
+    },
+    dateCell: {
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    dateMain: {
+        fontWeight: '500',
+        color: 'var(--color-text)',
+    },
+    dateSub: {
+        fontSize: '0.8rem',
+        color: 'var(--color-text-secondary)',
+    },
+    bankTag: {
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        color: 'var(--color-text-secondary)',
+        padding: '0.4rem 0.8rem',
+        borderRadius: '6px',
+        fontSize: '0.85rem',
+        fontWeight: '500',
+    },
+    fileName: {
+        color: 'var(--color-text)',
+        fontSize: '0.95rem',
+    },
+    badgeSuccess: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.4rem',
+        backgroundColor: 'rgba(1, 106, 50, 0.2)',
+        color: '#4ade80',
+        padding: '0.4rem 0.8rem',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '600',
+    },
+    badgeError: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.4rem',
+        backgroundColor: 'rgba(243, 139, 168, 0.15)',
+        color: '#f38ba8',
+        padding: '0.4rem 0.8rem',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '600',
+    },
+    downloadBtn: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.6rem 1rem',
+        borderRadius: '8px',
+        border: 'none',
+        backgroundColor: 'rgba(1, 106, 50, 0.15)',
+        color: 'var(--color-primary-light)',
+        fontSize: '0.9rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+    },
+    errorBox: {
+        backgroundColor: 'rgba(243, 139, 168, 0.15)',
+        color: '#f38ba8',
+        border: '1px solid #f38ba8',
+        padding: '1rem',
+        borderRadius: '8px',
+        marginBottom: '1rem',
+    }
 };
 
 export default ConversionsHistory;

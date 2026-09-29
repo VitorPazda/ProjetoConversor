@@ -1,4 +1,5 @@
 import { useOutletContext } from 'react-router-dom';
+import { FileUp } from 'lucide-react';
 import ConversionForm from '../components/ConversionForm';
 
 function Dashboard() {
@@ -7,7 +8,10 @@ function Dashboard() {
     return (
         <div style={styles.container}>
             <header style={styles.header}>
-                <h1 style={styles.title}>Conversor de PDF para OFX</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                    <FileUp size={32} color="var(--color-primary)" />
+                    <h1 style={styles.title}>Conversor de PDF para OFX</h1>
+                </div>
                 <p style={styles.subtitle}>Converta seus extratos bancários em poucos passos.</p>
             </header>
             

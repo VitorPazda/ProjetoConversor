@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Pencil, Trash2, Plus, X } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Users as UsersIcon } from 'lucide-react';
 
 function Users() {
     const [users, setUsers] = useState([]);
@@ -97,7 +97,10 @@ function Users() {
             <header style={styles.header}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={styles.title}>Gerenciar Usuários</h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.5rem' }}>
+                            <UsersIcon size={32} color="var(--color-primary)" />
+                            <h1 style={styles.title}>Gerenciar Usuários</h1>
+                        </div>
                         <p style={styles.subtitle}>Cadastre, edite e remova usuários do sistema.</p>
                     </div>
                     {!isFormOpen && (
