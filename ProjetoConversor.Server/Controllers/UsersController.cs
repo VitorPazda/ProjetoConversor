@@ -72,11 +72,11 @@ namespace ProjetoConversor.Server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto request)
         {
-            var user = await _userService.LoginAsync(request.Username, request.Password);
+            var user = await _userService.LoginAsync(request);
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Usuário ou senha inválidos" });
+                return Unauthorized(new { message = "User or Password is incorrect" });
             }
 
             return Ok(user);

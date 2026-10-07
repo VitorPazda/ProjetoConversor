@@ -7,7 +7,7 @@ function Users() {
     const [error, setError] = useState('');
 
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [formData, setFormData] = useState({ id: null, name: '', username: '', password: '', accountType: 'Usuário', active: true });
+    const [formData, setFormData] = useState({ id: null, name: '', username: '', password: '', accountType: 'User', active: true });
     const [formLoading, setFormLoading] = useState(false);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ function Users() {
         if (user) {
             setFormData({ id: user.idUser, name: user.name, username: user.username, password: '', accountType: user.accountType, active: user.active });
         } else {
-            setFormData({ id: null, name: '', username: '', password: '', accountType: 'Usuário', active: true });
+            setFormData({ id: null, name: '', username: '', password: '', accountType: 'User', active: true });
         }
         setIsFormOpen(true);
     };
@@ -160,7 +160,7 @@ function Users() {
                                     onChange={e => setFormData({ ...formData, accountType: e.target.value })}
                                     style={styles.select}
                                 >
-                                    <option value="Usuário">Usuário Comum</option>
+                                    <option value="User">Usuário Comum</option>
                                     <option value="Administrator">Administrador</option>
                                 </select>
                             </div>

@@ -77,9 +77,9 @@ namespace ProjetoConversor.Server.Services
             }
         }
 
-        public async Task<User?> LoginAsync(string username, string password)
+        public async Task<User?> LoginAsync(LoginDto login)
         {
-            var user = await _context.User.FirstOrDefaultAsync(user => user.Username.ToLower() == username.ToLower());
+            var user = await _context.User.FirstOrDefaultAsync(user => user.Username.ToLower() == login.Username.ToLower());
 
             // Verify that the user is not null first
             if (user == null)
@@ -93,7 +93,7 @@ namespace ProjetoConversor.Server.Services
                 return null;
             }
 
-            bool isValidPassword = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            bool isValidPassword = BCrypt.Net.BCrypt.Verify(login.Password, user.Password);
 
             if (!isValidPassword)
             {
