@@ -8,12 +8,10 @@ namespace ProjetoConversor.Server.Controllers
     [ApiController]
     public class ConversionsController : ControllerBase
     {
-        private readonly ProjetoConversorContext _context;
         private readonly ConversionService _conversionService;
 
-        public ConversionsController(ProjetoConversorContext context, ConversionService conversionService)
+        public ConversionsController(ConversionService conversionService)
         {
-            _context = context;
             _conversionService = conversionService;
         }
 
