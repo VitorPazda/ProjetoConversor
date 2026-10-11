@@ -16,9 +16,7 @@ function Dashboard() {
             </header>
             
             <div style={styles.content}>
-                <div style={styles.card}>
-                    <ConversionForm userId={user?.idUser} />
-                </div>
+                <ConversionForm userId={user?.idUser} />
             </div>
         </div>
     );
@@ -29,7 +27,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         gap: '2.5rem',
-        maxWidth: '700px',
+        maxWidth: '1200px',
         margin: '0 auto',
         paddingTop: '1rem',
     },
@@ -52,13 +50,6 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         gap: '1.5rem',
-    },
-    card: {
-        backgroundColor: 'var(--color-surface)',
-        padding: '2.5rem',
-        borderRadius: '16px',
-        border: '1px solid #313244',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
     }
 };
 
