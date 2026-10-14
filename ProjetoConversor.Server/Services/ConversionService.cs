@@ -17,7 +17,9 @@ namespace ProjetoConversor.Server.Services
 
         public async Task<List<ConversionModel>> FindAllAsync() 
         {
-            return await _context.Conversion.ToListAsync();
+            return await _context.Conversion
+                .OrderByDescending(conversion => conversion.Date)
+                .ToListAsync();
         }
 
         public async Task<ConversionModel?> FindByIdAsync(int id)
@@ -30,6 +32,7 @@ namespace ProjetoConversor.Server.Services
         {
             return await _context.Conversion
                 .Where(conversion => conversion.UserId == userId)
+                .OrderByDescending(conversion => conversion.Date)
                 .Select(conversion => new ConversionModel
                 {
                     IdConversion = conversion.IdConversion,

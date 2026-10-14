@@ -194,6 +194,13 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.25rem;
+    gap: 1rem;
+}
+
+.recent-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .recent-title {
@@ -201,6 +208,30 @@
     font-size: 1.05rem;
     font-weight: 600;
     color: var(--color-text);
+}
+
+.recent-refresh-btn {
+    background: transparent;
+    border: 1px solid #313244;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    padding: 0.35rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.recent-refresh-btn:hover:not(:disabled) {
+    color: var(--color-primary-light);
+    border-color: var(--color-primary-light);
+    background-color: rgba(57, 168, 107, 0.1);
+}
+
+.recent-refresh-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .recent-history-btn {
@@ -219,6 +250,79 @@
 .recent-history-btn:hover {
     background-color: rgba(57, 168, 107, 0.1);
     opacity: 0.9;
+}
+
+.recent-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+    gap: 0.5rem;
+}
+
+.recent-empty-icon {
+    opacity: 0.4;
+    color: var(--color-primary-light);
+    margin-bottom: 0.25rem;
+}
+
+.recent-empty-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.recent-empty-subtitle {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+    max-width: 420px;
+}
+
+.recent-loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    gap: 0.65rem;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+.recent-download-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgba(1, 106, 50, 0.4);
+    background-color: rgba(1, 106, 50, 0.15);
+    color: var(--color-primary-light);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.recent-download-btn:hover {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary-light);
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin-icon {
+    animation: spin 1s linear infinite;
 }
 
 .recent-table-wrapper {

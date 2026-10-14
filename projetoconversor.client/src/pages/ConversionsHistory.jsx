@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
     Clock, 
     CheckCircle2, 
@@ -30,12 +30,8 @@ function ConversionsHistory({ user }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    useEffect(() => {
-        fetchConversions();
-    }, [user]);
-
-    // LÓGICA DE BUSCA DO BACKEND EXISTENTE (PRESERVADA INTEGRALMENTE)
-    const fetchConversions = async () => {
+    // LÓGICA DE BUSCA DO BACKEND
+    const fetchConversions = useCallback(async () => {
         try {
             if (!user) return;
             const response = await fetch(`/api/conversions/user/${user.idUser}`);
@@ -49,7 +45,11 @@ function ConversionsHistory({ user }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        fetchConversions();
+    }, [fetchConversions]);
 
     // LÓGICA DE DOWNLOAD EXISTENTE (PRESERVADA INTEGRALMENTE)
     const handleDownload = (id, date) => {
@@ -64,29 +64,37 @@ function ConversionsHistory({ user }) {
     };
 
     // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // CARDS DE RESUMO (MÉTRICAS)
     // -------------------------------------------------------------------------
-    // TODO: integrar total de conversões com dados reais do backend (ex: endpoint /api/conversions/stats ou agregação direta do banco)
     const stats = useMemo(() => {
-        // Se houver dados reais carregados, calcula as métricas dinamicamente com fallback mockado caso esteja vazio
-        const hasRealData = conversions && conversions.length > 0;
-        const total = hasRealData ? conversions.length : 24;
-        const success = hasRealData ? conversions.filter(c => c.status === 'Success').length : 20;
-        const errors = hasRealData ? conversions.filter(c => c.status === 'Error' || c.status === 'Falha').length : 3;
-        // TODO: usar dados reais de status retornados pelo backend (ex: status 'Processing')
-        const processing = hasRealData ? conversions.filter(c => c.status === 'Processing' || c.status === 'Processando').length : 1;
+        if (!conversions || conversions.length === 0) {
+            return { total: 0, success: 0, errors: 0, processing: 0 };
+        }
+        const total = conversions.length;
+        const success = conversions.filter(c => {
+            const s = (c.status || '').toLowerCase();
+            return s === 'success' || s === 'sucesso';
+        }).length;
+        const errors = conversions.filter(c => {
+            const s = (c.status || '').toLowerCase();
+            return s === 'failed' || s === 'falha' || s === 'error' || s === 'erro';
+        }).length;
+        const processing = conversions.filter(c => {
+            const s = (c.status || '').toLowerCase();
+            return s === 'processing' || s === 'processando';
+        }).length;
 
         return { total, success, errors, processing };
     }, [conversions]);
 
     // -------------------------------------------------------------------------
-    // FILTROS (CLIENT-SIDE COM HOOKS PARA INTEGRAÇÃO FUTURA COM O BACKEND)
+    // FILTROS
     // -------------------------------------------------------------------------
-    // TODO: conectar filtro de banco ao endpoint/listagem real
-    // TODO: conectar busca por arquivo com consulta real
-    // TODO: conectar filtro de período e status via query params na rota /api/conversions/user/...
     const filteredConversions = useMemo(() => {
-        return conversions.filter(item => {
+        const sorted = [...conversions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        return sorted.filter(item => {
             // Filtro de Banco
             if (selectedBank !== 'all' && item.bank?.toLowerCase() !== selectedBank.toLowerCase()) {
                 return false;
@@ -94,9 +102,9 @@ function ConversionsHistory({ user }) {
 
             // Filtro de Status
             if (selectedStatus !== 'all') {
-                const statusNormalized = item.status?.toLowerCase();
+                const statusNormalized = (item.status || '').toLowerCase();
                 if (selectedStatus === 'Success' && statusNormalized !== 'success' && statusNormalized !== 'sucesso') return false;
-                if (selectedStatus === 'Error' && statusNormalized !== 'error' && statusNormalized !== 'falha') return false;
+                if (selectedStatus === 'Error' && statusNormalized !== 'failed' && statusNormalized !== 'error' && statusNormalized !== 'falha' && statusNormalized !== 'erro') return false;
                 if (selectedStatus === 'Processing' && statusNormalized !== 'processing' && statusNormalized !== 'processando') return false;
             }
 
@@ -107,17 +115,28 @@ function ConversionsHistory({ user }) {
                 if (!fileName.includes(term)) return false;
             }
 
-            // Filtro de Período (Visual por enquanto)
-            // TODO: integrar filtro de período com query params do backend (ex: startDate e endDate)
+            // Filtro de Período
+            if (selectedPeriod !== 'all' && item.date) {
+                const itemDate = new Date(item.date);
+                const now = new Date();
+                if (selectedPeriod === '7days') {
+                    const diffDays = (now - itemDate) / (1000 * 60 * 60 * 24);
+                    if (diffDays > 7 || diffDays < 0) return false;
+                } else if (selectedPeriod === '30days') {
+                    const diffDays = (now - itemDate) / (1000 * 60 * 60 * 24);
+                    if (diffDays > 30 || diffDays < 0) return false;
+                } else if (selectedPeriod === 'thisMonth') {
+                    if (itemDate.getMonth() !== now.getMonth() || itemDate.getFullYear() !== now.getFullYear()) return false;
+                }
+            }
 
             return true;
         });
-    }, [conversions, selectedBank, selectedStatus, searchTerm]);
+    }, [conversions, selectedBank, selectedStatus, searchTerm, selectedPeriod]);
 
     // -------------------------------------------------------------------------
     // PAGINAÇÃO
     // -------------------------------------------------------------------------
-    // TODO: implementar paginação real com resposta da API (ex: page, pageSize, totalPages vindos do backend)
     const totalPages = Math.ceil(filteredConversions.length / itemsPerPage) || 1;
     const paginatedConversions = useMemo(() => {
         const start = (currentPage - 1) * itemsPerPage;
@@ -223,13 +242,16 @@ function ConversionsHistory({ user }) {
                         </label>
                         <select 
                             value={selectedPeriod} 
-                            onChange={(e) => setSelectedPeriod(e.target.value)}
+                            onChange={(e) => {
+                                setSelectedPeriod(e.target.value);
+                                setCurrentPage(1);
+                            }}
                             className="filter-select"
                         >
                             <option value="all">Todos os períodos</option>
-                            <option value="oct-2026">Outubro 2026</option>
-                            <option value="sep-2026">Setembro 2026</option>
-                            <option value="aug-2026">Agosto 2026</option>
+                            <option value="7days">Últimos 7 dias</option>
+                            <option value="30days">Últimos 30 dias</option>
+                            <option value="thisMonth">Este mês</option>
                         </select>
                     </div>
 

@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Lightbulb, FileText, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lightbulb, FileText, CheckCircle2, AlertCircle, Clock, Download, RefreshCw } from 'lucide-react';
 import FileUpload from './FileUpload';
 import './conversion.css';
 
@@ -26,42 +27,45 @@ const TIPS = [
     }
 ];
 
-const RECENT_CONVERSIONS = [
-    {
-        id: 'mock-1',
-        fileName: 'Extrato_Sicoob.pdf',
-        bank: 'Sicoob',
-        dateTime: '06/10 20:29',
-        status: 'Sucesso'
-    },
-    {
-        id: 'mock-2',
-        fileName: 'Extrato_Itau.pdf',
-        bank: 'Itaú',
-        dateTime: '04/10 16:44',
-        status: 'Sucesso'
-    },
-    {
-        id: 'mock-3',
-        fileName: 'Extrato_Agosto.pdf',
-        bank: 'Sicoob',
-        dateTime: '02/10 09:17',
-        status: 'Process.'
-    },
-    {
-        id: 'mock-4',
-        fileName: 'Extrato_Julho.pdf',
-        bank: 'Itaú',
-        dateTime: '29/09 14:20',
-        status: 'Erro'
-    }
-];
-
 function ConversionForm({ userId }) {
+    const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [bank, setBank] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ text: '', type: '' });
+
+    // Estado para conversões recentes reais
+    const [recentConversions, setRecentConversions] = useState([]);
+    const [loadingRecent, setLoadingRecent] = useState(true);
+
+    const fetchRecentConversions = useCallback(async () => {
+        if (!userId) {
+            setLoadingRecent(false);
+            return;
+        }
+
+        setLoadingRecent(true);
+        try {
+            const response = await fetch(`/api/conversions/user/${userId}`);
+            if (!response.ok) {
+                throw new Error('Falha ao carregar as conversões recentes.');
+            }
+            const data = await response.json();
+            const sorted = Array.isArray(data)
+                ? [...data].sort((a, b) => new Date(b.date) - new Date(a.date))
+                : [];
+            setRecentConversions(sorted.slice(0, 5));
+        } catch (err) {
+            console.error('Erro ao buscar conversões recentes:', err);
+            setRecentConversions([]);
+        } finally {
+            setLoadingRecent(false);
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        fetchRecentConversions();
+    }, [fetchRecentConversions]);
 
     const handleConvert = async (e) => {
         e.preventDefault();
@@ -91,6 +95,7 @@ function ConversionForm({ userId }) {
 
             if (!response.ok) {
                 const errorText = await response.text();
+                fetchRecentConversions();
                 throw new Error(errorText || 'Não foi possível converter o arquivo.');
             }
 
@@ -120,34 +125,66 @@ function ConversionForm({ userId }) {
             setMessage({ text: 'Arquivo convertido com sucesso!', type: 'success' });
             setFile(null);
             setBank('');
+            fetchRecentConversions();
         } catch (err) {
             setMessage({ text: err.message, type: 'error' });
+            fetchRecentConversions();
         } finally {
             setLoading(false);
         }
     };
 
+    const handleDownload = (id, date) => {
+        const downloadUrl = `/api/conversions/download/${id}`;
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const formattedDate = date 
+            ? new Date(date).toLocaleDateString('pt-BR').replace(/\//g, '-') 
+            : 'extrato';
+        a.download = `${formattedDate}.ofx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '-';
+        try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const hours = String(d.getHours()).padStart(2, '0');
+            const minutes = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month} ${hours}:${minutes}`;
+        } catch {
+            return dateStr;
+        }
+    };
+
     const renderStatusBadge = (status) => {
-        if (status === 'Sucesso') {
+        const normalized = (status || '').toLowerCase();
+
+        if (normalized === 'success' || normalized === 'sucesso') {
             return (
                 <span className="status-badge sucesso">
                     <CheckCircle2 size={13} />
-                    {status}
+                    Sucesso
                 </span>
             );
         }
-        if (status === 'Process.') {
+        if (normalized === 'processing' || normalized === 'processando' || normalized === 'process.') {
             return (
                 <span className="status-badge process">
                     <Clock size={13} />
-                    {status}
+                    Processando
                 </span>
             );
         }
         return (
             <span className="status-badge erro">
                 <AlertCircle size={13} />
-                {status}
+                Falha
             </span>
         );
     };
@@ -218,9 +255,24 @@ function ConversionForm({ userId }) {
             {/* Painel de Conversões Recentes (100% largura) */}
             <div className="conversion-card">
                 <div className="recent-header">
-                    <h3 className="recent-title">Conversões recentes</h3>
-                    <button type="button" className="recent-history-btn">
-                        Ver histórico
+                    <div className="recent-header-left">
+                        <h3 className="recent-title">Conversões recentes</h3>
+                        <button 
+                            type="button" 
+                            onClick={fetchRecentConversions} 
+                            className="recent-refresh-btn" 
+                            title="Atualizar conversões recentes"
+                            disabled={loadingRecent}
+                        >
+                            <RefreshCw size={14} className={loadingRecent ? 'spin-icon' : ''} />
+                        </button>
+                    </div>
+                    <button 
+                        type="button" 
+                        className="recent-history-btn"
+                        onClick={() => navigate('/history')}
+                    >
+                        Ver histórico completo →
                     </button>
                 </div>
 
@@ -232,28 +284,68 @@ function ConversionForm({ userId }) {
                                 <th className="recent-th">Banco</th>
                                 <th className="recent-th">Data/Hora</th>
                                 <th className="recent-th">Status</th>
+                                <th className="recent-th" style={{ textAlign: 'right' }}>Ação</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {RECENT_CONVERSIONS.map((item) => (
-                                <tr key={item.id} className="recent-tr">
-                                    <td className="recent-td">
-                                        <div className="file-cell">
-                                            <FileText size={16} color="var(--color-primary-light)" />
-                                            <span>{item.fileName}</span>
+                            {loadingRecent ? (
+                                <tr>
+                                    <td colSpan="5">
+                                        <div className="recent-loading-state">
+                                            <Clock size={18} className="spin-icon" />
+                                            <span>Carregando conversões recentes...</span>
                                         </div>
                                     </td>
-                                    <td className="recent-td">
-                                        <span className="bank-tag">{item.bank}</span>
-                                    </td>
-                                    <td className="recent-td">
-                                        <span className="date-text">{item.dateTime}</span>
-                                    </td>
-                                    <td className="recent-td">
-                                        {renderStatusBadge(item.status)}
+                                </tr>
+                            ) : recentConversions.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5">
+                                        <div className="recent-empty-state">
+                                            <FileText size={32} className="recent-empty-icon" />
+                                            <span className="recent-empty-title">Nenhuma conversão recente encontrada</span>
+                                            <span className="recent-empty-subtitle">
+                                                Faça o upload de um extrato em PDF para iniciar sua primeira conversão.
+                                            </span>
+                                        </div>
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                recentConversions.map((item) => {
+                                    const isSuccess = (item.status || '').toLowerCase() === 'success' || (item.status || '').toLowerCase() === 'sucesso';
+                                    return (
+                                        <tr key={item.idConversion} className="recent-tr">
+                                            <td className="recent-td">
+                                                <div className="file-cell">
+                                                    <FileText size={16} color="var(--color-primary-light)" />
+                                                    <span>{item.fileName}</span>
+                                                </div>
+                                            </td>
+                                            <td className="recent-td">
+                                                <span className="bank-tag">{item.bank}</span>
+                                            </td>
+                                            <td className="recent-td">
+                                                <span className="date-text">{formatDate(item.date)}</span>
+                                            </td>
+                                            <td className="recent-td">
+                                                {renderStatusBadge(item.status)}
+                                            </td>
+                                            <td className="recent-td" style={{ textAlign: 'right' }}>
+                                                {isSuccess && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDownload(item.idConversion, item.date)}
+                                                        className="recent-download-btn"
+                                                        title="Baixar arquivo OFX"
+                                                    >
+                                                        <Download size={13} />
+                                                        Baixar
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
