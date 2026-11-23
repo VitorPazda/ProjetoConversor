@@ -85,7 +85,10 @@ function Users() {
 
         try {
             const response = await fetch(`/api/users/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('Erro ao excluir usuário.');
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.message || 'Erro ao excluir usuário.');
+            }
             fetchUsers();
         } catch (err) {
             alert(err.message);

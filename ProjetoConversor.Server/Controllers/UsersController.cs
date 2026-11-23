@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ProjetoConversor.Models;
 using ProjetoConversor.Server.Services;
 
@@ -64,8 +64,15 @@ namespace ProjetoConversor.Server.Controllers
                 return NotFound(new { message = "User not found" });
             }
 
-            await _userService.DeleteAsync(id);
-            return NoContent();
+            try
+            {
+                await _userService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // POST User Login

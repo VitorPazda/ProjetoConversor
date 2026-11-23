@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
+using ProjetoConversor.Server.Models;
 using System.Text;
 
 namespace ProjetoConversor.Server.Services
@@ -15,11 +16,22 @@ namespace ProjetoConversor.Server.Services
             _context = context;
         }
 
-        public async Task<List<ConversionModel>> FindAllAsync() 
+        public async Task<List<ConversionResponseDto>> FindAllWithUserAsync() 
         {
-            return await _context.Conversion
-                .OrderByDescending(conversion => conversion.Date)
-                .ToListAsync();
+            return await (from c in _context.Conversion
+                          join u in _context.User on c.UserId equals u.IdUser into userGroup
+                          from u in userGroup.DefaultIfEmpty()
+                          orderby c.Date descending
+                          select new ConversionResponseDto
+                          {
+                              IdConversion = c.IdConversion,
+                              UserId = c.UserId,
+                              UserName = u != null ? u.Name : "Usuário Desconhecido",
+                              Bank = c.Bank,
+                              FileName = c.FileName,
+                              Date = c.Date,
+                              Status = c.Status
+                          }).ToListAsync();
         }
 
         public async Task<ConversionModel?> FindByIdAsync(int id)
@@ -28,21 +40,23 @@ namespace ProjetoConversor.Server.Services
         }
 
         // Return conversion by UserId
-        public async Task<List<ConversionModel>> ConversionResultAsync(int userId)
+        public async Task<List<ConversionResponseDto>> ConversionResultAsync(int userId)
         {
-            return await _context.Conversion
-                .Where(conversion => conversion.UserId == userId)
-                .OrderByDescending(conversion => conversion.Date)
-                .Select(conversion => new ConversionModel
-                {
-                    IdConversion = conversion.IdConversion,
-                    UserId = conversion.UserId,
-                    Bank = conversion.Bank,
-                    FileName = conversion.FileName,
-                    Date = conversion.Date,
-                    Status = conversion.Status
-                })
-                .ToListAsync();
+            return await (from c in _context.Conversion
+                          join u in _context.User on c.UserId equals u.IdUser into userGroup
+                          from u in userGroup.DefaultIfEmpty()
+                          where c.UserId == userId
+                          orderby c.Date descending
+                          select new ConversionResponseDto
+                          {
+                              IdConversion = c.IdConversion,
+                              UserId = c.UserId,
+                              UserName = u != null ? u.Name : "Usuário Desconhecido",
+                              Bank = c.Bank,
+                              FileName = c.FileName,
+                              Date = c.Date,
+                              Status = c.Status
+                          }).ToListAsync();
         }
 
         public async Task<(byte[] FileBytes, string FileName)> SaveConversionAsync(int userId, string bank, IFormFile file)

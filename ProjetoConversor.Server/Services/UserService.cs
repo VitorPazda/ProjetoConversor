@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjetoConversor.Models;
 using ProjetoConversor.Data;
@@ -66,6 +66,13 @@ namespace ProjetoConversor.Server.Services
                 if (user == null)
                 {
                     throw new KeyNotFoundException("User not found");
+                }
+
+                // Check if user has conversions associated
+                bool hasConversions = await _context.Conversion.AnyAsync(c => c.UserId == id);
+                if (hasConversions)
+                {
+                    throw new InvalidOperationException("Não é possível excluir este usuário pois ele possui conversões vinculadas ao seu histórico. Você pode desativá-lo.");
                 }
 
                 _context.User.Remove(user);

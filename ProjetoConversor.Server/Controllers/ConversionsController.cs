@@ -19,7 +19,7 @@ namespace ProjetoConversor.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetConversions()
         {
-            var conversion = await _conversionService.FindAllAsync();
+            var conversion = await _conversionService.FindAllWithUserAsync();
             return Ok(conversion);
         }
 

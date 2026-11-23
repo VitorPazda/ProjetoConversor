@@ -12,7 +12,8 @@ import {
     ChevronRight,
     Calendar,
     Building2,
-    Filter
+    Filter,
+    User as UserIcon
 } from 'lucide-react';
 import './history.css';
 
@@ -21,6 +22,8 @@ function ConversionsHistory({ user }) {
     const [conversions, setConversions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    const isAdmin = user?.accountType === 'Administrator';
 
     // ESTADOS LOCAIS PARA FILTROS E PAGINAÇÃO (VISUAIS / CLIENT-SIDE SEM QUEBRAR O BACKEND ATUAL)
     const [selectedPeriod, setSelectedPeriod] = useState('all');
@@ -34,7 +37,12 @@ function ConversionsHistory({ user }) {
     const fetchConversions = useCallback(async () => {
         try {
             if (!user) return;
-            const response = await fetch(`/api/conversions/user/${user.idUser}`);
+            // Se for Administrador, busca todas as conversões; senão, busca apenas as do usuário
+            const endpoint = isAdmin 
+                ? '/api/conversions' 
+                : `/api/conversions/user/${user.idUser}`;
+
+            const response = await fetch(endpoint);
             if (!response.ok) {
                 throw new Error('Falha ao carregar o histórico');
             }
@@ -45,7 +53,7 @@ function ConversionsHistory({ user }) {
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, isAdmin]);
 
     useEffect(() => {
         fetchConversions();
@@ -108,11 +116,12 @@ function ConversionsHistory({ user }) {
                 if (selectedStatus === 'Processing' && statusNormalized !== 'processing' && statusNormalized !== 'processando') return false;
             }
 
-            // Filtro de Busca por Arquivo
+            // Filtro de Busca por Arquivo ou Usuário
             if (searchTerm.trim() !== '') {
                 const term = searchTerm.toLowerCase();
                 const fileName = (item.fileName || '').toLowerCase();
-                if (!fileName.includes(term)) return false;
+                const userName = (item.userName || '').toLowerCase();
+                if (!fileName.includes(term) && !userName.includes(term)) return false;
             }
 
             // Filtro de Período
@@ -179,9 +188,13 @@ function ConversionsHistory({ user }) {
             <header className="history-header">
                 <div className="history-header-title-row">
                     <Clock size={32} color="var(--color-primary)" />
-                    <h1 className="history-title">Meu Histórico</h1>
+                    <h1 className="history-title">{isAdmin ? 'Histórico Geral de Conversões' : 'Meu Histórico'}</h1>
                 </div>
-                <p className="history-subtitle">Veja todas as suas conversões passadas e baixe os arquivos OFX.</p>
+                <p className="history-subtitle">
+                    {isAdmin 
+                        ? 'Visualize todas as conversões realizadas por todos os usuários do sistema.' 
+                        : 'Veja todas as suas conversões passadas e baixe os arquivos OFX.'}
+                </p>
             </header>
 
             {/* Mensagem de Erro (se houver) */}
@@ -335,6 +348,7 @@ function ConversionsHistory({ user }) {
                                 <thead>
                                     <tr>
                                         <th className="history-th">Data/Hora</th>
+                                        {isAdmin && <th className="history-th">Usuário</th>}
                                         <th className="history-th">Banco</th>
                                         <th className="history-th">Arquivo Original</th>
                                         <th className="history-th">Status</th>
@@ -344,7 +358,7 @@ function ConversionsHistory({ user }) {
                                 <tbody>
                                     {paginatedConversions.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5">
+                                            <td colSpan={isAdmin ? "6" : "5"}>
                                                 <div className="history-empty-box">
                                                     <FileText size={32} />
                                                     <p>Nenhuma conversão encontrada.</p>
@@ -366,6 +380,14 @@ function ConversionsHistory({ user }) {
                                                             </span>
                                                         </div>
                                                     </td>
+                                                    {isAdmin && (
+                                                        <td className="history-td">
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                                <UserIcon size={14} color="var(--color-primary-light)" />
+                                                                <span style={{ fontWeight: '500' }}>{conv.userName || 'N/A'}</span>
+                                                            </div>
+                                                        </td>
+                                                    )}
                                                     <td className="history-td">
                                                         <span className="history-bank-tag">{conv.bank}</span>
                                                     </td>
