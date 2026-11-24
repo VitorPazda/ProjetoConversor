@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lightbulb, FileText, CheckCircle2, AlertCircle, Clock, Download, RefreshCw } from 'lucide-react';
+import { Lightbulb, FileText, CheckCircle2, AlertCircle, Clock, Download, RefreshCw, X, ArrowRight } from 'lucide-react';
 import FileUpload from './FileUpload';
 import './conversion.css';
 
@@ -122,12 +122,20 @@ function ConversionForm({ userId }) {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            setMessage({ text: 'Arquivo convertido com sucesso!', type: 'success' });
+            setMessage({ 
+                text: 'Extrato convertido com sucesso!', 
+                detail: `O arquivo OFX (${filename}) foi gerado e baixado automaticamente.`,
+                type: 'success' 
+            });
             setFile(null);
             setBank('');
             fetchRecentConversions();
         } catch (err) {
-            setMessage({ text: err.message, type: 'error' });
+            setMessage({ 
+                text: 'Falha na conversão do extrato.', 
+                detail: err.message || 'Verifique se o PDF selecionado é um extrato bancário válido e legível.',
+                type: 'error' 
+            });
             fetchRecentConversions();
         } finally {
             setLoading(false);
@@ -215,7 +223,27 @@ function ConversionForm({ userId }) {
 
                         {message.text && (
                             <div className={`conversion-message-box ${message.type === 'error' ? 'error' : 'success'}`}>
-                                {message.text}
+                                <div className="conversion-message-icon">
+                                    {message.type === 'error' ? (
+                                        <AlertCircle size={22} />
+                                    ) : (
+                                        <CheckCircle2 size={22} />
+                                    )}
+                                </div>
+                                <div className="conversion-message-content">
+                                    <span className="conversion-message-title">{message.text}</span>
+                                    {message.detail && (
+                                        <span className="conversion-message-desc">{message.detail}</span>
+                                    )}
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setMessage({ text: '', detail: '', type: '' })}
+                                    className="conversion-message-close"
+                                    title="Fechar aviso"
+                                >
+                                    <X size={16} />
+                                </button>
                             </div>
                         )}
 
